@@ -1,0 +1,80 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 300px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: black;
+  padding: 30px;
+}
+
+header {
+  margin-right: 0px;
+  height: 95vh;
+  background-color: rgb(97, 108, 31);
+  background-size: cover;
+  background-position: top;
+  position: relative;
+
+  /* background-image: linear-gradient(
+
+      to right,
+      rgba(128, 214, 113, 0.8),
+      rgba(40, 180, 133, 0.8)
+    ),
+    url(../img/hero.jpg); */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 75vh,
+    /*75vh so now it will be 75% of the view heigh, so even if the screen smaller bigger it will be 75%*/
+      0 100%
+  );
+}
+
+.container {
+  display: absolute;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* transform: translate(-50%, -50%); check 4) */
+  position: absolute;
+
+  top: 40%;
+  left: 50%; /*50% from the left of the header; the parent*/
+  /*  background-color: red;*/
+  transform: translate(-50%, -50%); /*check 4)*/
+}
+
+.container .box {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /* align-items: center; */
+  /* gap: 0; */
+  backface-visibility: hidden;
+}
+
+.container .box .images-sec {
+  display: flex;
+  flex-direction: column;
+  width: 33%;
+}
+
+.container .box .images-sec img {
+  /* width: 100%; */
+  display: block;
+  width: 100%;
+  padding-bottom: 5px;
+  border-radius: 10px;
+}
+
+#middleImg {
+  height: 100%;
+}

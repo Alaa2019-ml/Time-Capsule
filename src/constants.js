@@ -7,6 +7,7 @@ export const WEATHER_INTERFACE_ID = "weather-interface";
 export const NEWS_INTERFACE_ID = "news-interface";
 export const MUSIC_INTERFACE_ID = "music-interface";
 export const TECK_INTERFACE_ID = "teck-interface";
+export const MOVIES_INTERFACE_ID = "movies-interface";
 
 export const CURRENT_TIME_ID = "time";
 export const WIND_SPEED_ID = "windSpeed";

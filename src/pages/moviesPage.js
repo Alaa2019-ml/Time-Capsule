@@ -6,7 +6,7 @@ import {
   getMonthName,
   getTopFive,
 } from "../utils/functions.js";
-
+import { MOVIES_API_KEY } from "../utils/keys.js";
 export const initMoviesPage = (date) => {
   let moviesInterface = document.getElementById(MOVIES_INTERFACE_ID);
 
@@ -33,7 +33,7 @@ const showMoviesInThePast = (dateStr) => {
   const [y, m, d] = dateStr.trim().split("-");
   const year = Number(y);
 
-  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?primary_release_year=${year}&sort_by=vote_average.desc&vote_count.gte=1000&include_adult=true&api_key=8d2eb2a6995742b24f8dc0fcf0161cac
+  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?primary_release_year=${year}&sort_by=vote_average.desc&vote_count.gte=1000&include_adult=true&api_key=${MOVIES_API_KEY}
 `;
   fetchJson(moviesUrl)
     .then((data) => {

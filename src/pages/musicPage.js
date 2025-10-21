@@ -24,45 +24,62 @@ const showMusicInThePast = (dateStr) => {
     console.error("Please select a date first.");
     return;
   }
-  const [y, m, d] = dateStr.trim().split("-");
-  const year = Number(y);
 
+  const [y] = dateStr.trim().split("-");
+  const year = Number(y);
   const musicDetailsUrl = `https://musicbrainz.org/ws/2/release?query=date:${year} AND country:US&fmt=json`;
+
   fetchJson(musicDetailsUrl)
     .then((data) => {
-      //1
       const songsDetails = saveAllSongsDetails(data);
-      //end 1
-      // we need first to save some elements randomly to a set
       const allReleasesIds = songsDetails
         .map((song) => song.relaseID)
         .filter(Boolean);
 
-      console.log("All Releases Ids: ", allReleasesIds);
-      const randomSongs = pickRandomItems(allReleasesIds, 6);
-
-      const ul = document.createElement("ul");
-
-      randomSongs.forEach((song, index) => {
-        // Add small delays to avoid throttling
-        setTimeout(() => {
-          const songUrl = `https://musicbrainz.org/ws/2/release/${song}?inc=recordings+artist-credits+url-rels&fmt=json`;
-          getEachSongDetails(songUrl, ul);
-
-          const coverPageUrl = `https://coverartarchive.org/release/${song}`;
-          getCoverPage(coverPageUrl, ul);
-        }, index * 400); // 400ms gap between requests
+      const coverChecks = allReleasesIds.map((id) => {
+        const url = `https://coverartarchive.org/release/${id}`;
+        return fetch(url)
+          .then((res) => (res.ok ? id : null))
+          .catch(() => null);
       });
+
+      Promise.all(coverChecks)
+        .then((results) => {
+          const releasesWithCovers = results.filter(Boolean);
+          const randomSongs = pickRandomItems(releasesWithCovers, 6);
+
+          const ul = document.createElement("ul");
+          const container = document.getElementById(MUSIC_INTERFACE_ID);
+          if (container && !container.contains(ul)) container.appendChild(ul);
+
+          // chain the fetches so that details + cover are rendered together
+          randomSongs.forEach((songId, index) => {
+            setTimeout(() => {
+              const songUrl = `https://musicbrainz.org/ws/2/release/${songId}?inc=recordings+artist-credits+url-rels&fmt=json`;
+              const coverUrl = `https://coverartarchive.org/release/${songId}`;
+
+              //fetch both and render when both are ready
+              Promise.all([getEachSongDetails(songUrl), getCoverPage(coverUrl)])
+                .then(([details, imageUrl]) => {
+                  appendCoverImage(imageUrl, ul, details);
+                })
+                .catch(() => {
+                  appendCoverImage(null, ul, null);
+                });
+            }, index * 400);
+          });
+        })
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
-};
+}; // end func
 
 const saveAllSongsDetails = (data) => {
   const musicDict = [];
   const releases = data?.releases ?? [];
   for (const release of releases) {
     const title = release?.title ?? null;
-    console.log(release.title); // ✅ album title
+    console.log(release.title); // album title
     const dateReleased = release?.date ?? null; // date relaesed
     const relaseID = release?.id ?? null; // release id
     const relaseGroupId = release?.["release-group"]?.id ?? null;
@@ -84,14 +101,10 @@ const saveAllSongsDetails = (data) => {
   return musicDict;
 };
 
-const getEachSongDetails = (url, ul) => {
-  fetchJson(url)
+const getEachSongDetails = (url) => {
+  return fetchJson(url)
     .then((data) => {
-      //   console.log("Relase Data: ", data);
-
-      // individual or a group
       const purchaseLink = data?.relations?.[0]?.url?.resource ?? null;
-
       const typeBand =
         data?.media?.[0]?.tracks?.[0]?.["artist-credit"]?.[0]?.artist?.type ??
         null;
@@ -100,30 +113,12 @@ const getEachSongDetails = (url, ul) => {
         null;
       const songTitle = data?.title ?? null;
 
-      const detailsLi = document.createElement("li");
-      detailsLi.innerHTML = `
-  <div style="padding:10px 0;border-bottom:1px solid #eee;">
-    <div><strong>Song:</strong> ${songTitle ?? "N/A"}</div>
-    <div><strong>Artist:</strong> ${artistName ?? "N/A"}</div>
-    <div><strong>Type:</strong> ${typeBand ?? "N/A"}</div>
-    <div>
-      <strong>Purchase Link:</strong>
-      ${
-        purchaseLink
-          ? `<a href="${purchaseLink}" target="_blank" rel="noopener noreferrer">Click here</a>`
-          : "N/A"
-      }
-    </div>
-  </div>
-`;
-      ul.appendChild(detailsLi);
-
-      const container = document.getElementById(MUSIC_INTERFACE_ID);
-      if (container && !container.contains(ul)) {
-        container.appendChild(ul);
-      }
+      return { songTitle, artistName, typeBand, purchaseLink };
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
 };
 
 const loopOverAnArray = (arr) => {
@@ -139,19 +134,56 @@ const loopOverAnArray = (arr) => {
   return ids;
 };
 
-const getCoverPage = (url, ul) => {
-  fetchJson(url)
+const getCoverPage = (url) => {
+  return fetchJson(url)
     .then((data) => {
-      // console.log(data);
-      const imageUrl = data?.images?.[0]?.image ?? null;
-      console.log("Image Url", imageUrl);
+      let imageUrl = data?.images?.[0]?.image ?? null;
 
-      const li = document.createElement("li");
-      if (imageUrl) {
-        const li = document.createElement("li");
-        li.innerHTML = `<img src="${imageUrl}" style="width:100%;max-height:250px;object-fit:cover;border-radius:6px;" alt="cover">`;
-        ul.appendChild(li);
+      if (!imageUrl && Array.isArray(data?.images) && data.images.length > 0) {
+        const first = data.images.find((img) => img.front) || data.images[0];
+        const thumbs = first?.thumbnails || {};
+        imageUrl =
+          thumbs.large ||
+          thumbs.small ||
+          thumbs["500"] ||
+          thumbs["250"] ||
+          first?.image ||
+          null;
       }
+
+      if (!imageUrl) return null;
+      return imageUrl;
     })
-    .catch((err) => console.log(err));
+    .catch(() => null);
+};
+
+const appendCoverImage = (imageUrl, ul, details) => {
+  const li = document.createElement("li");
+  li.style.listStyle = "none";
+  li.style.margin = "10px 0";
+  li.innerHTML = `
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start;border:1px solid #eee;border-radius:10px;padding:12px;">
+      <div>
+        ${
+          imageUrl
+            ? `<img src="${imageUrl}" style="width:160px;max-height:160px;object-fit:cover;border-radius:8px;" alt="cover">`
+            : `<div style="width:160px;height:160px;background:#f5f5f5;border:1px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#666;">No cover</div>`
+        }
+      </div>
+      <div style="font-size:14px;line-height:1.5;">
+        <div><strong>Song:</strong> ${details?.songTitle ?? "N/A"}</div>
+        <div><strong>Artist:</strong> ${details?.artistName ?? "N/A"}</div>
+        <div><strong>Type:</strong> ${details?.typeBand ?? "N/A"}</div>
+        <div>
+          <strong>Purchase Link:</strong>
+          ${
+            details?.purchaseLink
+              ? `<a href="${details.purchaseLink}" target="_blank" rel="noopener noreferrer">Click here</a>`
+              : "N/A"
+          }
+        </div>
+      </div>
+    </div>
+  `;
+  ul.appendChild(li);
 };

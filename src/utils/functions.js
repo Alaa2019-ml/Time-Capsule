@@ -33,3 +33,7 @@ export const pickRandomItems = (arr, num = 5) => {
 
   return ransomlySavedItesms;
 };
+
+export const getTopFive = (arr, key) => {
+  return arr.sort((a, b) => b[key] - a[key]).slice(0, 5);
+};

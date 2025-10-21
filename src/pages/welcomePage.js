@@ -10,6 +10,7 @@ import { createWelcomeElement } from "../views/welcomeView.js";
 import { initWeatherPage } from "./weatherPage.js";
 import { initNewsPage } from "./newsPage.js";
 import { initMusicPage } from "./musicPage.js";
+import { initMoviesPage } from "./moviesPage.js";
 
 export const initWelcomePage = () => {
   const userInterface = document.getElementById(USER_INTERFACE_ID);
@@ -39,6 +40,7 @@ export const initWelcomePage = () => {
       initWeatherPage();
       initNewsPage(dateValue);
       initMusicPage(dateValue);
+      initMoviesPage(dateValue);
     });
   } else {
     console.warn(`Button #${TIME_JUMP_BUTTON_ID} not found`);

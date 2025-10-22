@@ -4,6 +4,7 @@ import {
   fetchJson,
   pickRandomItems,
   getMonthName,
+  renderError,
 } from "../utils/functions.js";
 import { NEWS_API_KEY } from "../utils/keys.js";
 
@@ -71,7 +72,7 @@ const showsNewsBeforeTheYear2004 = (y) => {
       const div = document.querySelector(".news-list");
       renderResultsBefore2004(newsArr, div);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => renderError("Ann error occured. ", err.message));
 }; //end func
 
 const checkUrl = (url) => {
@@ -108,7 +109,7 @@ const showNewsInThePast = (d, m, y) => {
         renderResults(url);
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => renderError("Try again. An error occured. ", err.message));
 };
 
 const getWikipediaLinksFromHtml = (data) => {
@@ -164,7 +165,7 @@ const renderResults = (url) => {
       const container = document.getElementById(NEWS_INTERFACE_ID);
       if (container) container.appendChild(article);
     })
-    .catch((err) => console.log(err));
+    .catch(() => renderError("Ann error occured. "));
 };
 const renderResultsBefore2004 = (arr, div) => {
   arr.forEach((ele) => {

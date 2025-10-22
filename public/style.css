@@ -7,7 +7,7 @@
   --border: #e5e7eb;
   --shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
   --accent: #d41010;
-  --bg: lch(70.78% 7.12 141.69 / 0.117);
+  --bg: lch(65.77% 91.02 135.8 / 0.198);
   --surface: #fff;
   --cardW: 320px;
 }
@@ -120,6 +120,7 @@ header .wrap {
 }
 .card__img {
   aspect-ratio: 16/9;
+  object-fit: cover;
 }
 
 /* Cards */
@@ -454,93 +455,58 @@ header .wrap {
     grid-template-columns: minmax(300px, 42%) 1fr;
     align-items: start;
   }
-  .news.news--large > img {
-    aspect-ratio: 16/10;
-  }
 }
 @media (min-width: 1200px) {
   .news.news--large:has(img) {
     grid-template-columns: minmax(320px, 480px) 1fr;
   }
 }
-.news.news--large.no-image {
-  grid-template-columns: 1fr;
-}
-.news.news--large.no-image .news__body {
-  align-self: center;
-}
 
-/* Modal */
+/* === Modal === */
 .modal {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 1000;
   background: rgba(0, 0, 0, 0.4);
-  display: none;
-  padding: 16px;
   align-items: center;
   justify-content: center;
-}
-.modal[style*="display: block"] {
-  display: flex;
-}
-.modal-content {
-  width: min(640px, 90vw);
-  max-height: 85vh;
-  overflow: auto;
-  border-radius: 20px;
-  background: #fefefe;
-  padding: 20px;
-  border: 1px solid #888;
-  margin: 0;
-}
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.card__img {
-  object-fit: cover;
-  aspect-ratio: 16 / 9;
-}
-
-/* Smaller, centered modal */
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
   padding: 16px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-.modal[style*="display: block"] {
-  display: flex;
 }
 
 .modal-content {
   width: min(420px, 90vw);
   max-height: 70vh;
   overflow: auto;
-  margin: 0;
-  padding: 16px;
   border-radius: 16px;
+  background: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  margin: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.25s ease;
 }
 
-/* Keep non-movie images uncropped (optional; remove if not needed) */
-.news img,
-.music-card__img,
-.cover-image {
-  height: auto;
-  object-fit: contain;
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

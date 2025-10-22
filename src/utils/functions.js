@@ -40,10 +40,22 @@ export const getTopFive = (arr, key) => {
 
 export const dayMonthYear = (date) => date.value.trim().split("-");
 
-export const renderError = (err, modal = null) => {
-  document.getElementById(titleID).innerHTML = "";
-  document.getElementById(message).innerHTML = "";
+export const renderError = (message) => {
+  const modal = document.getElementById("myModal");
+  const titleEl = document.getElementById("modalTitle");
+  const msgEl = document.getElementById("modalMessage");
+  const closeBtn = document.getElementsByClassName("close")[0];
 
-  document.getElementById(message).innerHTML = err;
-  modal.style.display = "block";
+  if (!modal || !msgEl || !titleEl) return alert(message);
+
+  titleEl.textContent = "⚠️ Error";
+  msgEl.textContent = message;
+
+  modal.style.display = "flex"; // or "block" if your modal uses block layout
+
+  closeBtn.onclick = () => (modal.style.display = "none");
+
+  window.onclick = (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  };
 };

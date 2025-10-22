@@ -1,12 +1,8 @@
 import { MOVIES_INTERFACE_ID } from "../constants.js";
 import { createMoviesElement } from "../views/moviesView.js";
-import {
-  fetchJson,
-  pickRandomItems,
-  getMonthName,
-  getTopFive,
-} from "../utils/functions.js";
+import { fetchJson, getTopFive } from "../utils/functions.js";
 import { MOVIES_API_KEY } from "../utils/keys.js";
+
 export const initMoviesPage = (date) => {
   let moviesInterface = document.getElementById(MOVIES_INTERFACE_ID);
 
@@ -30,78 +26,95 @@ const showMoviesInThePast = (dateStr) => {
     return;
   }
 
-  const [y, m, d] = dateStr.trim().split("-");
+  const [y] = dateStr.trim().split("-");
   const year = Number(y);
 
-  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?primary_release_year=${year}&sort_by=vote_average.desc&vote_count.gte=1000&include_adult=true&api_key=${MOVIES_API_KEY}
-`;
+  const moviesUrl =
+    `https://api.themoviedb.org/3/discover/movie` +
+    `?primary_release_year=${year}` +
+    `&sort_by=vote_average.desc` +
+    `&vote_count.gte=1000` +
+    `&include_adult=true` +
+    `&api_key=${MOVIES_API_KEY}`;
+
   fetchJson(moviesUrl)
     .then((data) => {
-      console.log(data);
-      //   const mostPopular = data.results[0];
       const movies = getAllMovies(data);
-      //   const movies = [];
-      //   data.results.forEach((movie) => {
-      //     const category = movie.adult ? "adults" : "children";
-      //     const language = movie.original_language;
-      //     const movieTitle = movie.original_title;
-      //     const movieOverview = movie.overview;
-      //     const popularity = movie.popularity;
-      //     const releaseDate = movie.release_date;
-      //     const posterPath = `https://image.tmdb.org/t/p/w500/${movie.poster_path}`;
-      //     movies.push({
-      //       category,
-      //       language,
-      //       movieTitle,
-      //       movieOverview,
-      //       popularity,
-      //       releaseDate,
-      //       posterPath,
-      //     }); // end of arr
-      //   }); //end of loop
-      // console.log(movies);
-      const popularMovies = getTopFive(movies, movies.popularity);
-      //   console.log(popularMovies);
+
+      //  getTopFive expects a key string, use "popularity"
+      const popularMovies = Array.isArray(movies)
+        ? getTopFive(movies, "popularity")
+        : [];
+
       renderResults(popularMovies);
     })
     .catch((err) => console.log(err));
 };
 
 const renderResults = (arr) => {
-  const ul = document.createElement("ul");
+  const container = document.getElementById(MOVIES_INTERFACE_ID);
+  if (!container) return;
+
+  const wrapper = container.querySelector("#movies-swiper .swiper-wrapper");
+  if (!wrapper) return;
+
+  // clear existing slides
+  wrapper.innerHTML = "";
+
   arr.forEach((movie) => {
-    const detailsLi = document.createElement("li");
-    detailsLi.innerHTML = `
-  <div style="padding:10px 0;border-bottom:1px solid #eee;">
-    <div><strong>Movie Title:</strong> ${movie.movieTitle ?? "N/A"}</div>
-    <div><strong>Overview:</strong> ${movie.movieOverview ?? "N/A"}</div>
-     <div><strong>Release date:</strong> ${movie.releaseDate ?? "N/A"}</div>
-     <div>
-    <img src="${
-      movie.posterPath
-    }" style="width:100%;max-height:250px;object-fit:cover;border-radius:6px;" alt="cover">
-    </div>
+    const slide = document.createElement("article");
+    slide.className = "swiper-slide card";
+
+    const safeTitle = (movie.movieTitle ?? "N/A").replace(/"/g, "&quot;");
+    const poster =
+      movie.posterPath || "https://placehold.co/500x750?text=No+Image";
+    const year =
+      movie.releaseYear ??
+      (movie.releaseDate ? movie.releaseDate.slice(0, 4) : "N/A");
+
+    slide.innerHTML = `
+  <img class="card__img" src="${poster}" alt="${safeTitle}" />
+  <div class="pill">${safeTitle}</div>
+  <div class="meta">
+    <span>${year}</span>
   </div>
+  <div class="card__overview">${
+    movie.movieOverview
+      ? movie.movieOverview.slice(0, 120) + "..."
+      : "No overview available."
+  }</div>
 `;
-    ul.appendChild(detailsLi);
+
+    wrapper.appendChild(slide);
   });
 
-  const container = document.getElementById(MOVIES_INTERFACE_ID);
-  if (container && !container.contains(ul)) {
-    container.appendChild(ul);
-  }
+  new Swiper("#movies-swiper", {
+    slidesPerView: "auto",
+    spaceBetween: 16,
+    freeMode: { enabled: true },
+    mousewheel: { forceToAxis: true },
+    keyboard: true,
+    navigation: {
+      prevEl: "#movies-swiper .swiper-button-prev",
+      nextEl: "#movies-swiper .swiper-button-next",
+    },
+  });
 };
 
 const getAllMovies = (data) => {
   const movies = [];
-  data.results.forEach((movie) => {
+  (data?.results ?? []).forEach((movie) => {
     const category = movie.adult ? "adults" : "children";
     const language = movie.original_language;
     const movieTitle = movie.original_title;
     const movieOverview = movie.overview;
     const popularity = movie.popularity;
     const releaseDate = movie.release_date;
-    const posterPath = `https://image.tmdb.org/t/p/w500/${movie.poster_path}`;
+    const releaseYear = releaseDate ? releaseDate.slice(0, 4) : "N/A";
+    const posterPath = movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
+      : "";
+
     movies.push({
       category,
       language,
@@ -109,8 +122,9 @@ const getAllMovies = (data) => {
       movieOverview,
       popularity,
       releaseDate,
+      releaseYear,
       posterPath,
-    }); // end of arr
-  }); //end of loop
+    });
+  });
   return movies;
 };

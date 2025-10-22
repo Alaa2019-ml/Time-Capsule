@@ -3,44 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <link rel="stylesheet" href="./public/style.css" /> -->
+    <link rel="stylesheet" href="./public/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@11/swiper-bundle.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
     <title>Time Machine</title>
   </head>
   <body>
     <header>
-      <h1>Welcome to Time Machine</h1>
-      <!-- <div class="container">
-        <div class="box">
-          <div class="images-sec">
-            <img src="./public/1.jpg" class="img1" />
-            <img src="./public/2.avif" class="img2" />
-          </div>
-          <div class="images-sec">
-            <img src="./public/3.webp" class="img3" id="middleImg" />
-          </div>
-          <div class="images-sec">
-            <img src="./public/4.jpg" class="img4" />
-            <img src="./public/5.jpg" class="img5" />
-          </div>
-        </div>
-      </div> -->
-    </header>
-    <main>
-      <div id="user-interface" class="centered"> </div>
-      <div id="weather-interface"></div>
-<hr><br><br>
-        <div id="news-interface" ></div>
-        <hr><br><br>
-        <div id="music-interface"></div>
-        <hr><br><br>
-        <div id="teck-interface"></div>
-      <hr><br><br>
-        <div id="movies-interface"></div>
-        
+      <div class="wrap">
+        <div class="brand">MY HUB</div>
+        <a class="chip" id="howItWorks" href="#">How it works! </a>
       </div>
+    </header>
+
+    <div id="user-interface" class="centered"></div>
+    <main class="wrap" id="results-sec" style="display: none">
+      <!-- WEATHER -->
+      <div id="weather-interface"></div>
+
+      <!-- ENTERTAINMENT -->
+      <section class="section">
+        <div class="section__bar">
+          <div class="section__title">ENTERTAINMENT</div>
+        </div>
+
+        <div id="music-interface"></div>
+
+        <div id="movies-interface"></div>
+      </section>
+
+      <!-- NEWS -->
+      <section class="section">
+        <div class="section__bar">
+          <div class="section__title">NEWS</div>
+          <a class="chip chip--accent" href="#">Subscribe to News</a>
+        </div>
+        <div id="news-interface"></div>
+      </section>
     </main>
+
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <p id="modalMessage"></p>
+      </div>
+    </div>
     <footer></footer>
-   
+
+    <!-- swiper JS -->
+    <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
 
     <script type="module" src="src/app.js"></script>
   </body>

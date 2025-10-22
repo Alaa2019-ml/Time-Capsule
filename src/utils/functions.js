@@ -37,3 +37,13 @@ export const pickRandomItems = (arr, num = 5) => {
 export const getTopFive = (arr, key) => {
   return arr.sort((a, b) => b[key] - a[key]).slice(0, 5);
 };
+
+export const dayMonthYear = (date) => date.value.trim().split("-");
+
+export const renderError = (err, modal = null) => {
+  document.getElementById(titleID).innerHTML = "";
+  document.getElementById(message).innerHTML = "";
+
+  document.getElementById(message).innerHTML = err;
+  modal.style.display = "block";
+};

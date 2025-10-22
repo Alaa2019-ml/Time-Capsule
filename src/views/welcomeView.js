@@ -3,7 +3,6 @@ import {
   TIME_JUMP_BUTTON_ID,
   SELECTED_DATE_ID,
   SELECTED_CITY_ID,
-  MISSING_DATA_ID,
 } from "../constants.js";
 
 export const createWelcomeElement = () => {

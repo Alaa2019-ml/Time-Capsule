@@ -1,4 +1,3 @@
-// import { USER_INTERFACE_ID } from "../constants.js";
 import { createPage } from "../utils/createPage.js";
 import {
   CURRENT_TIME_ID,
@@ -6,7 +5,6 @@ import {
   HUMIDITY_ID,
   TEMPERATURE_ID,
   WEATHER_ICON_ID,
-  WEATHER_CITY_ID,
   CHANGE_LOCATION_ID,
 } from "../constants.js";
 

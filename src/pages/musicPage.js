@@ -1,7 +1,7 @@
 // pages/musicPage.js
 import { MUSIC_INTERFACE_ID } from "../constants.js";
 import { createMusicElement } from "../views/musicView.js";
-import { fetchJson, pickRandomItems } from "../utils/functions.js";
+import { fetchJson, pickRandomItems, renderError } from "../utils/functions.js";
 
 export const initMusicPage = (date) => {
   let musicInterface = document.getElementById(MUSIC_INTERFACE_ID);
@@ -26,6 +26,7 @@ const showMusicInThePast = (dateStr) => {
 
   if (!dateStr) {
     if (statusEl) statusEl.textContent = "Please select a date first.";
+    renderError("Please select a date first.");
     console.error("Please select a date first.");
     return;
   }
@@ -46,6 +47,7 @@ const showMusicInThePast = (dateStr) => {
 
       if (allReleasesIds.length === 0) {
         if (statusEl) statusEl.textContent = "No releases found for that year.";
+        renderError("No releases found for that year.");
         return;
       }
 
@@ -61,12 +63,17 @@ const showMusicInThePast = (dateStr) => {
           .then(([details, imageUrl]) => {
             appendCoverImage(imageUrl, listEl, details);
           })
-          .catch(() => {
+          .catch((err) => {
+            renderError("Failed to load song details or cover image.");
+            console.error(err);
             appendCoverImage(null, listEl, null);
           });
       });
     })
     .catch((err) => {
+      renderError(
+        "Something went wrong while fetching music data. Please try again."
+      );
       console.error(err);
       if (statusEl)
         statusEl.textContent = "Something went wrong. Please try again.";
@@ -115,7 +122,8 @@ const getEachSongDetails = (url) => {
       return { songTitle, artistName, typeBand, purchaseLink };
     })
     .catch((err) => {
-      console.log(err);
+      renderError("An error occurred while fetching song details.");
+      console.error(err);
       return null;
     });
 };
@@ -144,7 +152,11 @@ const getCoverPage = (url) => {
 
       return imageUrl;
     })
-    .catch(() => null);
+    .catch((err) => {
+      renderError("Failed to load cover image.");
+      console.error(err);
+      return null;
+    });
 };
 
 const appendCoverImage = (imageUrl, ul, details) => {

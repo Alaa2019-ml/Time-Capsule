@@ -15,7 +15,7 @@ import { initWeatherPage } from "./weatherPage.js";
 import { initNewsPage } from "./newsPage.js";
 import { initMusicPage } from "./musicPage.js";
 import { initMoviesPage } from "./moviesPage.js";
-import { dayMonthYear } from "../utils/functions.js";
+import { dayMonthYear, renderError } from "../utils/functions.js";
 export const initWelcomePage = () => {
   const userInterface = document.getElementById(USER_INTERFACE_ID);
 
@@ -38,13 +38,15 @@ export const initWelcomePage = () => {
       const selectedCity = document.getElementById(SELECTED_CITY_ID);
 
       if (!dateInput || !dateInput.value) {
-        console.error("Please select a date first.");
+        renderError("Please select a date first.");
+        // console.error("Please select a date first.");
 
         return;
       }
 
       if (!selectedCity || !selectedCity.value.trim()) {
-        console.error("Please select a city first.");
+        // console.error("Please select  city first.");
+        renderError("Please select city first.");
         return;
       }
 

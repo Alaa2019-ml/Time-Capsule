@@ -10,8 +10,13 @@ import {
   WEATHER_INTERFACE_ID,
 } from "../constants.js";
 import { createWeatherElement } from "../views/weatherView.js";
+import { initWelcomePage } from "./welcomePage.js";
 
-import { getHourIn24Format, fetchJson } from "../utils/functions.js";
+import {
+  getHourIn24Format,
+  fetchJson,
+  renderError,
+} from "../utils/functions.js";
 
 /**
  * Renders the welcome/start screen
@@ -58,6 +63,8 @@ const showWeatherInThePast = (city, date) => {
     .then((data) => {
       if (!data?.results?.length) {
         throw new Error("City not found, try another one.");
+        // renderError("City not found, please try another one.");
+        // initWelcomePage();
       }
       const latitude = data.results[0].latitude;
       const longitude = data.results[0].longitude;
@@ -66,9 +73,12 @@ const showWeatherInThePast = (city, date) => {
         .then((data) => {
           displayCityWeather(data, cityValue);
         })
-        .catch((err) => console.log(err));
+        .catch(() => {
+          renderError("City not found, please try another one.");
+          // initWelcomePage();
+        });
     })
-    .catch((err) => alert(err));
+    .catch(() => renderError("An error occured. Please try again"));
 };
 
 const buildPastWeatherUrl = (latitude, longitude, date) => {

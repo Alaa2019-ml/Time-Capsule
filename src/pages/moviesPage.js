@@ -1,6 +1,6 @@
 import { MOVIES_INTERFACE_ID } from "../constants.js";
 import { createMoviesElement } from "../views/moviesView.js";
-import { fetchJson, getTopFive } from "../utils/functions.js";
+import { fetchJson, getTopFive, renderError } from "../utils/functions.js";
 import { MOVIES_API_KEY } from "../utils/keys.js";
 
 export const initMoviesPage = (date) => {
@@ -22,6 +22,7 @@ export const initMoviesPage = (date) => {
 
 const showMoviesInThePast = (dateStr) => {
   if (!dateStr) {
+    renderError("Please select a date first.");
     console.error("Please select a date first.");
     return;
   }
@@ -46,17 +47,33 @@ const showMoviesInThePast = (dateStr) => {
         ? getTopFive(movies, "popularity")
         : [];
 
+      if (!Array.isArray(popularMovies) || popularMovies.length === 0) {
+        renderError("No movies found for that year.");
+        return;
+      }
+
       renderResults(popularMovies);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      renderError(
+        "Something went wrong while fetching movies. Please try again."
+      );
+      console.log(err);
+    });
 };
 
 const renderResults = (arr) => {
   const container = document.getElementById(MOVIES_INTERFACE_ID);
-  if (!container) return;
+  if (!container) {
+    renderError("Movies container not found.");
+    return;
+  }
 
   const wrapper = container.querySelector("#movies-swiper .swiper-wrapper");
-  if (!wrapper) return;
+  if (!wrapper) {
+    renderError("Movies list area not found.");
+    return;
+  }
 
   // clear existing slides
   wrapper.innerHTML = "";

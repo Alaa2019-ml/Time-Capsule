@@ -160,7 +160,7 @@ const getCoverPage = (url) => {
 const appendCoverImage = (imageUrl, ul, details) => {
   const li = document.createElement("li");
   li.style.listStyle = "none";
-  li.style.margin = "10px 0";
+  li.style.margin = "3px 0";
   li.innerHTML = `
     <div style="display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start;border:1px solid #eee;border-radius:10px;padding:12px;">
       <div>

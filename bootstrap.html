@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Hub</title>
+
+    <!-- Swiper (carousel) -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@11/swiper-bundle.min.css"
+    />
+
+    <!-- Minimal reset + styles -->
+    <style>
+      :root {
+        --gap: 16px;
+        --radius: 14px;
+        --chip: #f1f1f1;
+        --ink: #1c1c1c;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
+        --accent: #d41010;
+        --bg: #fafafa;
+        --cardW: 320px; /* card width in carousels */
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: auto;
+        padding: 24px 16px;
+      }
+
+      /* Header */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+      }
+      header .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+      }
+      .brand {
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        font-size: 26px;
+      }
+
+      /* Section header like the screenshot */
+      .section {
+        padding: 22px 0;
+        border-top: 1px solid var(--border);
+      }
+      .section__bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .section__title {
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: 0.03em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section__title::after {
+        content: "›";
+        font-weight: 900;
+      }
+      .chip {
+        font-size: 14px;
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: #fff;
+        border: 1px solid var(--border);
+      }
+      .chip--accent {
+        background: #fff0f0;
+        border-color: #f3c9c9;
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      /* Cards (movies/music) */
+      .swiper {
+        padding: 4px 0 22px;
+      }
+      .swiper-wrapper {
+        gap: var(--gap);
+      }
+      .swiper-slide {
+        width: var(--cardW) !important;
+      }
+      .card {
+        background: #fff;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .card__img {
+        width: 100%;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+        display: block;
+      }
+      .pill {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: var(--chip);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .meta {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin: 0 12px 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* Weather card */
+      .weather {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+      }
+      .weather__icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 12px;
+        background: #eef6ff;
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+      }
+      .weather__city {
+        font-weight: 800;
+      }
+      .weather__now {
+        font-size: 28px;
+        font-weight: 900;
+      }
+      .weather__sub {
+        color: var(--muted);
+      }
+
+      /* News list (one after another) */
+      .news-list {
+        display: grid;
+        gap: 18px;
+      }
+      .news {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 14px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .news img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .news__body {
+        padding: 12px;
+      }
+      .news__title {
+        margin: 0 0 6px;
+        font-weight: 800;
+      }
+      .news__summary {
+        margin: 0 0 8px;
+        color: #444;
+      }
+      .news__date {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* Swiper arrows */
+      .swiper-button-prev,
+      .swiper-button-next {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      .swiper-button-prev:after,
+      .swiper-button-next:after {
+        font-size: 16px;
+        color: #444;
+      }
+
+      @media (max-width: 700px) {
+        .news {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div class="wrap">
+        <div class="brand">MY HUB</div>
+        <a class="chip" href="#">Sign up for updates</a>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- WEATHER -->
+      <section class="section">
+        <div class="section__bar">
+          <div class="section__title">WEATHER</div>
+          <a class="chip chip--accent" href="#">Change location</a>
+        </div>
+
+        <div class="weather">
+          <div class="weather__icon">☀️</div>
+          <div>
+            <div class="weather__city">Amsterdam, NL</div>
+            <div class="weather__now">18°C • Sunny</div>
+            <div class="weather__sub">
+              Feels 17°C • Wind 10 km/h • Humidity 55%
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENTERTAINMENT: MOVIES -->
+      <section class="section">
+        <div class="section__bar">
+          <div class="section__title">ENTERTAINMENT</div>
+          <a class="chip chip--accent" href="#"
+            >Subscribe to the Entertainment newsletter</a
+          >
+        </div>
+        <!-- end of div -->
+
+        <h3 style="margin: 0 0 10px; font-weight: 900">Movies</h3>
+        <div class="swiper" id="movies-swiper">
+          <div class="swiper-wrapper">
+            <!-- Movie card -->
+            <article class="swiper-slide card">
+              <img
+                class="card__img"
+                src="https://image.tmdb.org/t/p/w500/8YFL5QQVPy3AgrEQxNYVSgiPEbe.jpg"
+                alt=""
+              />
+              <div class="pill">Dune: Part Two</div>
+              <div class="meta"><span>2024</span></div>
+            </article>
+
+            <article class="swiper-slide card">
+              <img
+                class="card__img"
+                src="https://image.tmdb.org/t/p/w500/5YZbUmjbMa3ClvSW1Wj3D6XGolb.jpg"
+                alt=""
+              />
+              <div class="pill">Guardians Vol. 3</div>
+              <div class="meta"><span>2023</span></div>
+            </article>
+
+            <article class="swiper-slide card">
+              <img
+                class="card__img"
+                src="https://image.tmdb.org/t/p/w500/qNBAXBIQlnOThrVvA6mA2B5ggV6.jpg"
+                alt=""
+              />
+              <div class="pill">Avatar: The Way of Water</div>
+              <div class="meta"><span>2022</span></div>
+            </article>
+          </div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+        <!-- end movies -->
+
+        <!-- ENTERTAINMENT: MUSIC -->
+        <h3 style="margin: 22px 0 10px; font-weight: 900">Music</h3>
+        <div class="swiper" id="music-swiper">
+          <div class="swiper-wrapper">
+            <article class="swiper-slide card">
+              <img class="card__img" src="dev.png" alt="" />
+              <div class="pill">Blinding Lights</div>
+              <div class="meta">
+                <span>The Weeknd</span>
+                · <a href="#" style="text-decoration: none">Buy</a>
+              </div>
+            </article>
+
+            <article class="swiper-slide card">
+              <img
+                class="card__img"
+                src="https://i.scdn.co/image/ab67616d0000b2739f6d7f2bcd6b7c8f3f0d7a23"
+                alt=""
+              />
+              <div class="pill">Anti-Hero</div>
+              <div class="meta">
+                <span>Taylor Swift</span>
+                · <a href="#" style="text-decoration: none">Buy</a>
+              </div>
+            </article>
+
+            <article class="swiper-slide card">
+              <img
+                class="card__img"
+                src="https://i.scdn.co/image/ab67616d0000b273c1f2e6d1a6e6c1b2d3d6a8b9"
+                alt=""
+              />
+              <div class="pill">Levitating</div>
+              <div class="meta">
+                <span>Dua Lipa</span>
+                · <a href="#" style="text-decoration: none">Buy</a>
+              </div>
+            </article>
+          </div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+      </section>
+
+      <!-- NEWS (stacked: image, summary, title, day) -->
+      <section class="section">
+        <div class="section__bar">
+          <div class="section__title">NEWS</div>
+          <a class="chip chip--accent" href="#">Subscribe to News</a>
+        </div>
+
+        <div class="news-list">
+          <article class="news">
+            <img src="https://picsum.photos/seed/news1/400/300" alt="" />
+            <div class="news__body">
+              <h4 class="news__title">New Health Guidelines Released</h4>
+              <p class="news__summary">
+                Officials unveiled updated recommendations focusing on sleep,
+                exercise, and balanced diet to improve public health outcomes.
+              </p>
+              <div class="news__date">Published: Tue</div>
+            </div>
+          </article>
+
+          <article class="news">
+            <img src="https://picsum.photos/seed/news2/400/300" alt="" />
+            <div class="news__body">
+              <h4 class="news__title">Film Festival Announces Winners</h4>
+              <p class="news__summary">
+                A debut director took the top prize with a moving drama, while
+                audience awards celebrated innovative documentaries.
+              </p>
+              <div class="news__date">Published: Mon</div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- Swiper JS -->
+    <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+      // init both carousels to behave like the screenshot rows
+      document
+        .querySelectorAll("#movies-swiper, #music-swiper")
+        .forEach((el) => {
+          new Swiper(el, {
+            slidesPerView: "auto",
+            spaceBetween: 16,
+            freeMode: { enabled: true },
+            mousewheel: { forceToAxis: true },
+            keyboard: true,
+            navigation: {
+              prevEl: el.querySelector(".swiper-button-prev"),
+              nextEl: el.querySelector(".swiper-button-next"),
+            },
+          });
+        });
+    </script>
+  </body>
+</html>

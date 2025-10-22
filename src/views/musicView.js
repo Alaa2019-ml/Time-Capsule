@@ -5,10 +5,7 @@ import { createPage } from "../utils/createPage.js";
 export const createMusicElement = () => {
   return createPage(
     String.raw`
-       <div id="music-results" class="music-container">
-        <h2>Music From the Past 🎵</h2>
-        <div id="songs-list"></div>
-      </div>
+     
         `
   );
 };

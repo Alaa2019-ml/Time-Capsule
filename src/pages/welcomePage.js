@@ -46,20 +46,3 @@ export const initWelcomePage = () => {
     console.warn(`Button #${TIME_JUMP_BUTTON_ID} not found`);
   }
 };
-
-// //now we want to start the search, first we want to implement the city search.
-// fetch(
-//   `https://nominatim.openstreetmap.org/search?addressdetails=1&q=bakery+in+berlin+wedding&format=jsonv2&limit=1`
-// )
-//   .then((response) => response.json())
-//   .then((data) => console.log(data));
-
-// fetch(
-//   "https://geodb-cities-api.wirefreethought.com/v1/geo/cities?namePrefix=paris"
-// )
-//   .then((res) => res.json())
-//   .then(console.log);
-
-/**
- * We have checked here they are not empty, step 2 we need to get the data in fetch weather and use it there
- */

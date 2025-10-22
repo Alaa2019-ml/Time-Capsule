@@ -80,15 +80,24 @@ const displayCityWeather = (data) => {
   const temperature = data.hourly.temperature_2m[hour];
   const windSpeed = data.hourly.windspeed_10m[hour];
   const humidity = data.hourly.relative_humidity_2m[hour];
+  const precipitation = data.hourly.precipitation[hour];
 
-  console.log(
-    `Temperature at ${hour}:00 ${data.hourly.temperature_2m[hour]} \n Temperature ${temperature} and Wind Speed ${windSpeed} \n humidity ${humidity}`
-  );
+  // determine emoji
+  let weatherEmoji = "🌤️";
+  if (precipitation > 0) weatherEmoji = "🌧️";
+  else if (temperature <= 0) weatherEmoji = "❄️";
+  else if (temperature > 30) weatherEmoji = "☀️";
+  else if (humidity > 80) weatherEmoji = "🌫️";
+  else if (windSpeed > 30) weatherEmoji = "🌬️";
 
-  document.getElementById(CURRENT_TIME_ID).innerHTML = `Time: ${hour}`;
-  document.getElementById(WIND_SPEED_ID).innerHTML = `Wind Speed: ${windSpeed}`;
-  document.getElementById(HUMIDITY_ID).innerHTML = `Humidity: ${humidity}`;
+  // update the design
+  document.getElementById("weather-icon").textContent = weatherEmoji;
+  document.getElementById(CURRENT_TIME_ID).textContent = `Time: ${hour}:00`;
   document.getElementById(
     TEMPERATURE_ID
-  ).innerHTML = `Temperature: ${temperature}`;
+  ).textContent = `Temperature: ${temperature}°C`;
+  document.getElementById(
+    WIND_SPEED_ID
+  ).textContent = `Wind Speed: ${windSpeed} km/h`;
+  document.getElementById(HUMIDITY_ID).textContent = `Humidity: ${humidity}%`;
 };

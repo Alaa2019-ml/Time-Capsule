@@ -1,14 +1,14 @@
-// import { USER_INTERFACE_ID } from "../constants.js";
-import { createPage } from "../utils/createPage.js";
-// import { NEWS_TITLE_ID, NEWS_SUMMARY_ID, NEWS_IMAGE_ID } from "../constants.js";
-
+// views/moviesView.js
 export const createMoviesElement = () => {
-  return createPage(
-    String.raw`
-       <div id="music-results" class="music-container">
-        <h2>Movies in the Past 🎵</h2>
-        <div id="songs-list"></div>
-      </div>
-        `
-  );
+  const el = document.createElement("section");
+  el.className = "section";
+  el.innerHTML = `
+    <h3 style="margin:0 0 10px; font-weight:900">Movies</h3>
+    <div id="movies-swiper" class="swiper">
+      <div class="swiper-wrapper"></div>
+      <div class="swiper-button-prev" aria-label="Previous"></div>
+      <div class="swiper-button-next" aria-label="Next"></div>
+    </div>
+  `;
+  return el;
 };

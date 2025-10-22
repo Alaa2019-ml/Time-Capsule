@@ -41,7 +41,7 @@ const showMoviesInThePast = (dateStr) => {
     .then((data) => {
       const movies = getAllMovies(data);
 
-      // If your getTopFive expects a key string, use "popularity"
+      //  getTopFive expects a key string, use "popularity"
       const popularMovies = Array.isArray(movies)
         ? getTopFive(movies, "popularity")
         : [];
@@ -55,11 +55,10 @@ const renderResults = (arr) => {
   const container = document.getElementById(MOVIES_INTERFACE_ID);
   if (!container) return;
 
-  // Find the swiper wrapper created by the view
   const wrapper = container.querySelector("#movies-swiper .swiper-wrapper");
   if (!wrapper) return;
 
-  // Clear existing slides
+  // clear existing slides
   wrapper.innerHTML = "";
 
   arr.forEach((movie) => {
@@ -89,8 +88,6 @@ const renderResults = (arr) => {
     wrapper.appendChild(slide);
   });
 
-  // (Re)initialize Swiper for this block
-  // If you already init globally *after* rendering, you can remove this.
   new Swiper("#movies-swiper", {
     slidesPerView: "auto",
     spaceBetween: 16,

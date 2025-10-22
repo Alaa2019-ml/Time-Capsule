@@ -1,3 +1,4 @@
+// pages/musicPage.js
 import { MUSIC_INTERFACE_ID } from "../constants.js";
 import { createMusicElement } from "../views/musicView.js";
 import { fetchJson, pickRandomItems } from "../utils/functions.js";
@@ -20,68 +21,65 @@ export const initMusicPage = (date) => {
 };
 
 const showMusicInThePast = (dateStr) => {
+  const statusEl = document.getElementById("music-status");
+  const listEl = document.getElementById("music-list");
+
   if (!dateStr) {
+    if (statusEl) statusEl.textContent = "Please select a date first.";
     console.error("Please select a date first.");
     return;
   }
 
+  if (statusEl) statusEl.textContent = "Loading…";
+  if (listEl) listEl.innerHTML = "";
+
   const [y] = dateStr.trim().split("-");
   const year = Number(y);
-  const musicDetailsUrl = `https://musicbrainz.org/ws/2/release?query=date:${year} AND country:US&fmt=json`;
+  const musicDetailsUrl = `https://musicbrainz.org/ws/2/release?query=date:${year}&fmt=json`;
 
   fetchJson(musicDetailsUrl)
     .then((data) => {
       const songsDetails = saveAllSongsDetails(data);
       const allReleasesIds = songsDetails
-        .map((song) => song.relaseID)
+        .map((s) => s.relaseID)
         .filter(Boolean);
 
-      const coverChecks = allReleasesIds.map((id) => {
-        const url = `https://coverartarchive.org/release/${id}`;
-        return fetch(url)
-          .then((res) => (res.ok ? id : null))
-          .catch(() => null);
-      });
+      if (allReleasesIds.length === 0) {
+        if (statusEl) statusEl.textContent = "No releases found for that year.";
+        return;
+      }
 
-      Promise.all(coverChecks)
-        .then((results) => {
-          const releasesWithCovers = results.filter(Boolean);
-          const randomSongs = pickRandomItems(releasesWithCovers, 6);
+      const randomSongs = pickRandomItems(allReleasesIds, 6);
+      if (statusEl) statusEl.textContent = "";
+      if (!listEl) return;
 
-          const ul = document.createElement("ul");
-          const container = document.getElementById(MUSIC_INTERFACE_ID);
-          if (container && !container.contains(ul)) container.appendChild(ul);
+      randomSongs.forEach((songId) => {
+        const songUrl = `https://musicbrainz.org/ws/2/release/${songId}?inc=recordings+artist-credits+url-rels&fmt=json`;
+        const coverUrl = `https://coverartarchive.org/release/${songId}`;
 
-          // chain the fetches so that details + cover are rendered together
-          randomSongs.forEach((songId, index) => {
-            setTimeout(() => {
-              const songUrl = `https://musicbrainz.org/ws/2/release/${songId}?inc=recordings+artist-credits+url-rels&fmt=json`;
-              const coverUrl = `https://coverartarchive.org/release/${songId}`;
-
-              //fetch both and render when both are ready
-              Promise.all([getEachSongDetails(songUrl), getCoverPage(coverUrl)])
-                .then(([details, imageUrl]) => {
-                  appendCoverImage(imageUrl, ul, details);
-                })
-                .catch(() => {
-                  appendCoverImage(null, ul, null);
-                });
-            }, index * 400);
+        Promise.all([getEachSongDetails(songUrl), getCoverPage(coverUrl)])
+          .then(([details, imageUrl]) => {
+            appendCoverImage(imageUrl, listEl, details);
+          })
+          .catch(() => {
+            appendCoverImage(null, listEl, null);
           });
-        })
-        .catch((err) => console.log(err));
+      });
     })
-    .catch((err) => console.log(err));
-}; // end func
+    .catch((err) => {
+      console.error(err);
+      if (statusEl)
+        statusEl.textContent = "Something went wrong. Please try again.";
+    });
+};
 
 const saveAllSongsDetails = (data) => {
   const musicDict = [];
   const releases = data?.releases ?? [];
   for (const release of releases) {
     const title = release?.title ?? null;
-    console.log(release.title); // album title
-    const dateReleased = release?.date ?? null; // date relaesed
-    const relaseID = release?.id ?? null; // release id
+    const dateReleased = release?.date ?? null;
+    const relaseID = release?.id ?? null;
     const relaseGroupId = release?.["release-group"]?.id ?? null;
     const country = release?.country ?? null;
 
@@ -97,20 +95,21 @@ const saveAllSongsDetails = (data) => {
       country,
     });
   }
-  console.log(musicDict);
   return musicDict;
 };
 
 const getEachSongDetails = (url) => {
   return fetchJson(url)
     .then((data) => {
-      const purchaseLink = data?.relations?.[0]?.url?.resource ?? null;
-      const typeBand =
-        data?.media?.[0]?.tracks?.[0]?.["artist-credit"]?.[0]?.artist?.type ??
-        null;
-      const artistName =
-        data?.media?.[0]?.tracks?.[0]?.["artist-credit"]?.[0]?.artist?.name ??
-        null;
+      const purchaseLink = Array.isArray(data?.relations)
+        ? data.relations.find((r) => r?.url?.resource)?.url?.resource ?? null
+        : null;
+
+      const track = data?.media?.[0]?.tracks?.[0];
+      const artistCredit = track?.["artist-credit"]?.[0]?.artist;
+
+      const typeBand = artistCredit?.type ?? null;
+      const artistName = artistCredit?.name ?? null;
       const songTitle = data?.title ?? null;
 
       return { songTitle, artistName, typeBand, purchaseLink };
@@ -122,14 +121,11 @@ const getEachSongDetails = (url) => {
 };
 
 const loopOverAnArray = (arr) => {
-  if (!Array.isArray(arr)) {
-    return [];
-  }
-  if (arr.length === 0) return [];
+  if (!Array.isArray(arr) || arr.length === 0) return [];
   const ids = [];
   for (const elem of arr) {
     const id = elem?.artist?.id;
-    if (id) ids.push(id); // store only truthy values
+    if (id) ids.push(id);
   }
   return ids;
 };
@@ -137,21 +133,15 @@ const loopOverAnArray = (arr) => {
 const getCoverPage = (url) => {
   return fetchJson(url)
     .then((data) => {
-      let imageUrl = data?.images?.[0]?.image ?? null;
+      const first =
+        (Array.isArray(data?.images) && data.images.find((img) => img.front)) ||
+        data?.images?.[0];
 
-      if (!imageUrl && Array.isArray(data?.images) && data.images.length > 0) {
-        const first = data.images.find((img) => img.front) || data.images[0];
-        const thumbs = first?.thumbnails || {};
-        imageUrl =
-          thumbs.large ||
-          thumbs.small ||
-          thumbs["500"] ||
-          thumbs["250"] ||
-          first?.image ||
-          null;
-      }
+      if (!first) return null;
 
-      if (!imageUrl) return null;
+      const thumbs = first.thumbnails || {};
+      const imageUrl = thumbs.large || first.image || null;
+
       return imageUrl;
     })
     .catch(() => null);
@@ -159,31 +149,34 @@ const getCoverPage = (url) => {
 
 const appendCoverImage = (imageUrl, ul, details) => {
   const li = document.createElement("li");
-  li.style.listStyle = "none";
-  li.style.margin = "3px 0";
+  li.classList.add("cover-item");
+
   li.innerHTML = `
-    <div style="display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start;border:1px solid #eee;border-radius:10px;padding:12px;">
-      <div>
-        ${
-          imageUrl
-            ? `<img src="${imageUrl}" style="width:160px;max-height:160px;object-fit:cover;border-radius:8px;" alt="cover">`
-            : `<div style="width:160px;height:160px;background:#f5f5f5;border:1px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#666;">No cover</div>`
-        }
-      </div>
-      <div style="font-size:14px;line-height:1.5;">
-        <div><strong>Song:</strong> ${details?.songTitle ?? "N/A"}</div>
-        <div><strong>Artist:</strong> ${details?.artistName ?? "N/A"}</div>
-        <div><strong>Type:</strong> ${details?.typeBand ?? "N/A"}</div>
-        <div>
-          <strong>Purchase Link:</strong>
+    <div class="cover-container">
+      ${
+        imageUrl
+          ? `
+        <div class="cover-image-wrapper">
+          <img src="${imageUrl}" class="cover-image" alt="cover">
+        </div>
+      `
+          : ""
+      }
+
+      <div class="cover-details">
+        <p><strong>Song:</strong> ${details?.songTitle ?? "N/A"}</p>
+        <p><strong>Artist:</strong> ${details?.artistName ?? "N/A"}</p>
+        <p><strong>Type:</strong> ${details?.typeBand ?? "N/A"}</p>
+        <p><strong>Purchase Link:</strong>
           ${
             details?.purchaseLink
               ? `<a href="${details.purchaseLink}" target="_blank" rel="noopener noreferrer">Click here</a>`
               : "N/A"
           }
-        </div>
+        </p>
       </div>
     </div>
   `;
+
   ul.appendChild(li);
 };

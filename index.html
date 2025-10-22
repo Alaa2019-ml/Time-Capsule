@@ -4,24 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./public/style.css" />
-    <!-- Swiper CSS (needed for movies/music carousels) -->
+
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper@11/swiper-bundle.min.css"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
     <title>Time Machine</title>
   </head>
   <body>
     <header>
       <div class="wrap">
         <div class="brand">MY HUB</div>
-        <a class="chip" href="#">Sign up for updates</a>
+        <a class="chip" id="howItWorks" href="#">How it works! </a>
       </div>
     </header>
 
-    <main class="wrap">
-      <div id="user-interface" class="centered"></div>
-
+    <div id="user-interface" class="centered"></div>
+    <main class="wrap" id="results-sec" style="display: none">
       <!-- WEATHER -->
       <div id="weather-interface"></div>
 
@@ -29,14 +33,10 @@
       <section class="section">
         <div class="section__bar">
           <div class="section__title">ENTERTAINMENT</div>
-          <a class="chip chip--accent" href="#"
-            >Subscribe to the Entertainment newsletter</a
-          >
         </div>
 
-        <!-- (Optional) Music carousel -->
         <div id="music-interface"></div>
-        <!-- Movies carousel renders here -->
+
         <div id="movies-interface"></div>
       </section>
 
@@ -48,45 +48,21 @@
         </div>
         <div id="news-interface"></div>
       </section>
-
-      <!-- TECH (if you’ll use it) -->
-      <section class="section">
-        <div class="section__bar">
-          <div class="section__title">TECH</div>
-        </div>
-        <div id="teck-interface"></div>
-      </section>
     </main>
 
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <p id="modalMessage"></p>
+      </div>
+    </div>
     <footer></footer>
 
-    <!-- Swiper JS -->
+    <!-- swiper JS -->
     <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
 
-    <!-- Your app (modules render content + can init Swiper after render) -->
     <script type="module" src="src/app.js"></script>
-
-    <!-- If you really want a generic initializer, run it AFTER your modules render -->
-    <!--
-    <script>
-      // Call this after renderResults() has injected #movies-swiper / #music-swiper
-      function initAllSwipers() {
-        document.querySelectorAll("#movies-swiper, #music-swiper").forEach((el) => {
-          new Swiper(el, {
-            slidesPerView: "auto",
-            spaceBetween: 16,
-            freeMode: { enabled: true },
-            mousewheel: { forceToAxis: true },
-            keyboard: true,
-            navigation: {
-              prevEl: el.querySelector(".swiper-button-prev"),
-              nextEl: el.querySelector(".swiper-button-next"),
-            },
-          });
-        });
-      }
-      // window.addEventListener('DOMContentLoaded', initAllSwipers); // only if slides already rendered
-    </script>
-    -->
   </body>
 </html>

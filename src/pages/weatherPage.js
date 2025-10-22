@@ -4,11 +4,13 @@ import {
   SELECTED_CITY_ID,
   CURRENT_TIME_ID,
   WIND_SPEED_ID,
+  WEATHER_ICON_ID,
   HUMIDITY_ID,
   TEMPERATURE_ID,
   WEATHER_INTERFACE_ID,
 } from "../constants.js";
 import { createWeatherElement } from "../views/weatherView.js";
+
 import { getHourIn24Format, fetchJson } from "../utils/functions.js";
 
 /**
@@ -33,8 +35,6 @@ export const initWeatherPage = () => {
     weatherInterface = document.createElement("div");
     weatherInterface.id = WEATHER_INTERFACE_ID;
     main.appendChild(weatherInterface);
-    // console.warn("WEATHER_INTERFACE_ID not found in DOM.");
-    // return;
   }
 
   const userInterface = document.getElementById(USER_INTERFACE_ID);
@@ -42,30 +42,33 @@ export const initWeatherPage = () => {
   userInterface.innerHTML = "";
   weatherInterface.innerHTML = "";
   const weatherElement = createWeatherElement();
-  // userInterface.appendChild(weatherElement);
 
   weatherInterface.appendChild(weatherElement);
-  weatherInterface.style.display = "block";
 
-  //but before calling the weather page, we need to get the data
   showWeatherInThePast(selectedCity, selectedDate);
 };
 
-// bnefore we call the functions we want to check the dom
-
 const showWeatherInThePast = (city, date) => {
-  const cityUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${city.value}`;
+  const cityValue = city.value.trim();
+  const modal = document.getElementById("myModal");
+
+  const cityUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${cityValue}`;
 
   fetchJson(cityUrl)
     .then((data) => {
+      if (!data?.results?.length) {
+        throw new Error("City not found, try another one.");
+      }
       const latitude = data.results[0].latitude;
       const longitude = data.results[0].longitude;
       const pastWeatherUrl = buildPastWeatherUrl(latitude, longitude, date);
-      fetchJson(pastWeatherUrl).then((data) => {
-        displayCityWeather(data);
-      });
+      fetchJson(pastWeatherUrl)
+        .then((data) => {
+          displayCityWeather(data, cityValue);
+        })
+        .catch((err) => console.log(err));
     })
-    .catch((err) => console.log(err));
+    .catch((err) => alert(err));
 };
 
 const buildPastWeatherUrl = (latitude, longitude, date) => {
@@ -75,7 +78,7 @@ const buildPastWeatherUrl = (latitude, longitude, date) => {
   return `https://archive-api.open-meteo.com/v1/era5?latitude=${latitude}&longitude=${longitude}&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,windspeed_10m,relative_humidity_2m,precipitation&timezone=auto`;
 };
 
-const displayCityWeather = (data) => {
+const displayCityWeather = (data, cityName) => {
   const hour = getHourIn24Format();
   const temperature = data.hourly.temperature_2m[hour];
   const windSpeed = data.hourly.windspeed_10m[hour];
@@ -90,12 +93,11 @@ const displayCityWeather = (data) => {
   else if (humidity > 80) weatherEmoji = "🌫️";
   else if (windSpeed > 30) weatherEmoji = "🌬️";
 
-  // update the design
-  document.getElementById("weather-icon").textContent = weatherEmoji;
+  document.getElementById(WEATHER_ICON_ID).textContent = weatherEmoji;
   document.getElementById(CURRENT_TIME_ID).textContent = `Time: ${hour}:00`;
   document.getElementById(
     TEMPERATURE_ID
-  ).textContent = `Temperature: ${temperature}°C`;
+  ).textContent = `${cityName} ${temperature}°C`;
   document.getElementById(
     WIND_SPEED_ID
   ).textContent = `Wind Speed: ${windSpeed} km/h`;

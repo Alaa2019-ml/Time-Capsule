@@ -14,7 +14,7 @@ export const createWelcomeElement = () => {
 
         <div class="welcome">
           <div class="welcome__spark">Time travel, but make it fun</div>
-          <h2 class="welcome__title">Pick a day. Pick a city. Jump into the vibe.</h2>
+          <h2 class="welcome__title">Choose a date and city to begin your time jump.</h2>
           <p class="welcome__lead">
             Time Capsule brings back the weather, music, movies, and headlines from the moment
             you choose.
@@ -26,6 +26,10 @@ export const createWelcomeElement = () => {
             <span>Past weather</span>
             <span>Movie picks</span>
           </div>
+
+          <p class="welcome__prompt">
+            Curious what the world looked like on the day you were born? Start there.
+          </p>
 
           <div class="welcome__form">
             <label class="welcome__label" for="${SELECTED_DATE_ID}">Choose a date</label>

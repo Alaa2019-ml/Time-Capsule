@@ -64,7 +64,6 @@ const showMusicInThePast = (dateStr) => {
             appendCoverImage(imageUrl, listEl, details);
           })
           .catch((err) => {
-            renderError("Failed to load song details or cover image.");
             console.error(err);
             appendCoverImage(null, listEl, null);
           });
@@ -122,7 +121,6 @@ const getEachSongDetails = (url) => {
       return { songTitle, artistName, typeBand, purchaseLink };
     })
     .catch((err) => {
-      renderError("An error occurred while fetching song details.");
       console.error(err);
       return null;
     });
@@ -153,7 +151,6 @@ const getCoverPage = (url) => {
       return imageUrl;
     })
     .catch((err) => {
-      renderError("Failed to load cover image.");
       console.error(err);
       return null;
     });
@@ -172,7 +169,11 @@ const appendCoverImage = (imageUrl, ul, details) => {
           <img src="${imageUrl}" class="cover-image" alt="cover">
         </div>
       `
-          : ""
+          : `
+        <div class="cover-image-wrapper">
+          <div class="no-cover">No cover available</div>
+        </div>
+      `
       }
 
       <div class="cover-details">

@@ -102,7 +102,7 @@ const showIntroductoryMessage = (date, data, modal) => {
   } else {
     showModal(data[6]);
   }
-  modal.style.display = "block";
+  modal.style.display = "flex";
 };
 
 const showModal = (obj) => {
@@ -117,10 +117,40 @@ const showHowItWorksModal = (modal) => {
   document.getElementById(MODAL_MESSAGE_ID).innerHTML = "";
 
   document.getElementById(
-    MODAL_MESSAGE_ID
-  ).innerHTML = `Welcome to Time Capsule! 🚀 Choose any date and city, and watch the past come alive. Discover the 🌦️ weather, 🎶 music hits, 🎬 popular movies, and 📰 biggest news from that time. Step back in history and relive the moments that shaped the world — one click at a time! 🔮
-<br><center><strong>
-✨ Ready to travel through time? </strong> Good luck, explorer! 🌍⏳ </center>`;
+    MODAL_TITLE_ID
+  ).innerHTML = `<img src="./public/logo.png" alt="Time Capsule logo" class="modal-title__logo" />`;
 
-  modal.style.display = "block";
+  document.getElementById(
+    MODAL_MESSAGE_ID
+  ).innerHTML = `
+    <div class="how-modal">
+      <p class="how-modal__eyebrow">A playful trip into the past</p>
+      <h2 class="how-modal__heading">See what the world felt like on any day you choose.</h2>
+      <p class="how-modal__intro">
+        Welcome to Time Capsule! Choose any date and city, and watch the past come alive.
+        Discover the weather, music hits, popular movies, and biggest news from that time.
+      </p>
+
+      <div class="how-modal__grid">
+        <div class="how-modal__card">
+          <span class="how-modal__icon">📅</span>
+          <strong>Pick a date</strong>
+          <p>Go for your birthday, a favorite year, or any random day that makes you curious.</p>
+        </div>
+        <div class="how-modal__card">
+          <span class="how-modal__icon">🌍</span>
+          <strong>Choose a city</strong>
+          <p>Set the place so the weather snapshot feels tied to a real location.</p>
+        </div>
+        <div class="how-modal__card">
+          <span class="how-modal__icon">🎵</span>
+          <strong>Open the vibe</strong>
+          <p>Discover the songs, films, news, and mood of that moment in one screen.</p>
+        </div>
+      </div>
+
+      <p class="how-modal__footer">Ready to travel through time? Good luck, explorer!</p>
+    </div>`;
+
+  modal.style.display = "flex";
 };

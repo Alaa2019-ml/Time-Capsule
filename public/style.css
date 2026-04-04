@@ -17,7 +17,13 @@
 }
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
   color: var(--ink);
   background: var(--bg);
 }
@@ -277,7 +283,9 @@ header .wrap {
 .music-card {
   display: flex;
   flex-direction: column;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 .music-card:hover {
   transform: translateY(-2px);
@@ -365,14 +373,22 @@ header .wrap {
   left: 10px;
   width: 120px;
   height: 120px;
-  background: radial-gradient(circle, rgba(255, 111, 145, 0.55), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 111, 145, 0.55),
+    transparent 70%
+  );
 }
 .welcome-orb--blue {
   right: 20px;
   bottom: 10px;
   width: 160px;
   height: 160px;
-  background: radial-gradient(circle, rgba(82, 198, 255, 0.45), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(82, 198, 255, 0.45),
+    transparent 70%
+  );
 }
 .welcome {
   position: relative;
@@ -383,9 +399,21 @@ header .wrap {
   border-radius: 32px;
   box-shadow: 0 24px 60px rgba(49, 56, 122, 0.16);
   background:
-    radial-gradient(circle at top left, rgba(255, 241, 118, 0.85), transparent 28%),
-    radial-gradient(circle at top right, rgba(110, 231, 255, 0.72), transparent 24%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(246, 247, 255, 0.92));
+    radial-gradient(
+      circle at top left,
+      rgba(255, 241, 118, 0.85),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(110, 231, 255, 0.72),
+      transparent 24%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(246, 247, 255, 0.92)
+    );
   max-width: 680px;
   margin: 0 auto;
 }
@@ -422,7 +450,11 @@ header .wrap {
   margin: 0 auto 20px;
   padding: 12px 16px;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(255, 122, 162, 0.12), rgba(79, 209, 255, 0.14));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 122, 162, 0.12),
+    rgba(79, 209, 255, 0.14)
+  );
   color: #444d74;
   font-size: 14px;
   font-weight: 600;
@@ -469,7 +501,9 @@ header .wrap {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 16px 30px rgba(101, 96, 229, 0.3);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 .welcome__button:hover,
 .welcome__button:focus-visible {
@@ -607,41 +641,181 @@ header .wrap {
 }
 
 /* === Modal === */
-.modal {
+#myModal.modal {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(18, 26, 46, 0.28);
+  backdrop-filter: blur(12px);
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 20px;
 }
 
-.modal-content {
-  width: min(420px, 90vw);
-  max-height: 70vh;
+#myModal .modal-content {
+  display: block;
+  flex: 0 0 auto;
+  width: 820px;
+  max-width: calc(100vw - 72px);
+  max-height: 80vh;
   overflow: auto;
-  border-radius: 16px;
-  background: #fefefe;
-  padding: 20px;
-  border: 1px solid #888;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 225, 120, 0.28), transparent 24%),
+    radial-gradient(circle at top right, rgba(82, 198, 255, 0.22), transparent 24%),
+    linear-gradient(180deg, #f5f9ff, #ebf3ff);
+  padding: 34px 36px 30px;
+  border: 1px solid #c6d9fb;
   margin: 0;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 28px 64px rgba(25, 44, 86, 0.2);
   animation: fadeIn 0.25s ease;
 }
 
-.close {
-  color: #aaa;
-  float: right;
+#myModal #modalTitle,
+#myModal #modalMessage {
+  max-width: 100%;
+}
+
+#myModal #modalTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+#myModal .modal-title__logo {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}
+
+#myModal #modalMessage {
+  margin: 0;
+}
+
+#myModal .how-modal {
+  text-align: center;
+  color: #33405f;
+}
+
+#myModal .how-modal__eyebrow {
+  margin: 0 0 8px;
+  color: #5b67cc;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#myModal .how-modal__heading {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.1;
+  color: #243150;
+}
+
+#myModal .how-modal__intro {
+  max-width: 620px;
+  margin: 14px auto 24px;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #5f6c8e;
+}
+
+#myModal .how-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#myModal .how-modal__card {
+  padding: 18px 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(190, 209, 241, 0.9);
+  box-shadow: 0 10px 24px rgba(78, 99, 151, 0.08);
+}
+
+#myModal .how-modal__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: rgba(114, 138, 229, 0.12);
+  font-size: 20px;
+}
+
+#myModal .how-modal__card strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #243150;
+  font-size: 17px;
+}
+
+#myModal .how-modal__card p {
+  margin: 0;
+  color: #617095;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+#myModal .how-modal__footer {
+  margin: 20px auto 0;
+  max-width: 520px;
+  padding: 14px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 122, 162, 0.12), rgba(79, 209, 255, 0.16));
+  color: #3b4a75;
+  font-weight: 700;
+}
+
+#myModal .close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  color: #627297;
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
+  line-height: 1;
 }
-.close:hover,
-.close:focus {
-  color: black;
+#myModal .close:hover,
+#myModal .close:focus {
+  color: #22304f;
   text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  #myModal .modal-content {
+    width: calc(100vw - 32px);
+    max-width: 560px;
+    padding: 28px 20px 22px;
+    border-radius: 26px;
+  }
+
+  #myModal .modal-title__logo {
+    width: 72px;
+    height: 72px;
+  }
+
+  #myModal .how-modal__grid {
+    grid-template-columns: 1fr;
+  }
+
+  #myModal .how-modal__heading {
+    font-size: 28px;
+  }
+
+  #myModal .how-modal__intro {
+    font-size: 16px;
+  }
 }
 
 @keyframes fadeIn {

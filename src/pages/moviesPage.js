@@ -48,17 +48,14 @@ const showMoviesInThePast = (dateStr) => {
         : [];
 
       if (!Array.isArray(popularMovies) || popularMovies.length === 0) {
-        renderError("No movies found for that year.");
+        console.warn("No movies found for that year.");
         return;
       }
 
       renderResults(popularMovies);
     })
     .catch((err) => {
-      renderError(
-        "Something went wrong while fetching movies. Please try again."
-      );
-      console.log(err);
+      console.warn("Something went wrong while fetching movies.", err);
     });
 };
 

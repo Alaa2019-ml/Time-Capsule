@@ -1,4 +1,7 @@
 // import fetch from "node-fetch";
+let errorModalTimer = null;
+let lastErrorModalAt = 0;
+
 export function getHourIn24Format() {
   const date = new Date();
   const hour = date.getHours().toString().padStart(2, "0");
@@ -40,6 +43,13 @@ export const getTopFive = (arr, key) => {
 
 export const dayMonthYear = (date) => date.value.trim().split("-");
 
+export const clearErrorModalTimer = () => {
+  if (errorModalTimer) {
+    clearTimeout(errorModalTimer);
+    errorModalTimer = null;
+  }
+};
+
 export const renderError = (message) => {
   const modal = document.getElementById("myModal");
   const titleEl = document.getElementById("modalTitle");
@@ -48,14 +58,37 @@ export const renderError = (message) => {
 
   if (!modal || !msgEl || !titleEl) return alert(message);
 
+  const now = Date.now();
+  const isErrorModalOpen =
+    modal.style.display === "flex" && titleEl.textContent === "⚠️ Error";
+  const withinCooldown = now - lastErrorModalAt < 12000;
+
+  if ((isErrorModalOpen && errorModalTimer) || withinCooldown) {
+    return;
+  }
+
+  clearErrorModalTimer();
+  lastErrorModalAt = now;
+
   titleEl.textContent = "⚠️ Error";
   msgEl.textContent = message;
 
-  modal.style.display = "flex"; // or "block" if your modal uses block layout
+  modal.style.display = "flex";
 
-  closeBtn.onclick = () => (modal.style.display = "none");
+  closeBtn.onclick = () => {
+    clearErrorModalTimer();
+    modal.style.display = "none";
+  };
 
   window.onclick = (e) => {
-    if (e.target === modal) modal.style.display = "none";
+    if (e.target === modal) {
+      clearErrorModalTimer();
+      modal.style.display = "none";
+    }
   };
+
+  errorModalTimer = setTimeout(() => {
+    modal.style.display = "none";
+    errorModalTimer = null;
+  }, 10000);
 };

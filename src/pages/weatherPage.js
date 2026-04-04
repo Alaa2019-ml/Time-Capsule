@@ -74,11 +74,11 @@ const showWeatherInThePast = (city, date) => {
           displayCityWeather(data, cityValue);
         })
         .catch(() => {
-          renderError("City not found, please try another one.");
+          console.warn("Unable to load weather for the selected city/date.");
           // initWelcomePage();
         });
     })
-    .catch(() => renderError("An error occured. Please try again"));
+    .catch((err) => console.warn("Weather lookup failed.", err));
 };
 
 const buildPastWeatherUrl = (latitude, longitude, date) => {

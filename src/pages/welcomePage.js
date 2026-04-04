@@ -15,7 +15,21 @@ import { initWeatherPage } from "./weatherPage.js";
 import { initNewsPage } from "./newsPage.js";
 import { initMusicPage } from "./musicPage.js";
 import { initMoviesPage } from "./moviesPage.js";
-import { dayMonthYear, renderError } from "../utils/functions.js";
+import {
+  clearErrorModalTimer,
+  dayMonthYear,
+  renderError,
+} from "../utils/functions.js";
+
+let introModalTimer = null;
+
+const clearIntroModalTimer = () => {
+  if (introModalTimer) {
+    clearTimeout(introModalTimer);
+    introModalTimer = null;
+  }
+};
+
 export const initWelcomePage = () => {
   const userInterface = document.getElementById(USER_INTERFACE_ID);
 
@@ -75,17 +89,21 @@ export const initWelcomePage = () => {
   }
 
   span.onclick = function () {
+    clearIntroModalTimer();
     modal.style.display = "none";
   };
 
   window.onclick = function (event) {
     if (event.target == modal) {
+      clearIntroModalTimer();
       modal.style.display = "none";
     }
   };
 };
 
 const showIntroductoryMessage = (date, data, modal) => {
+  clearErrorModalTimer();
+  clearIntroModalTimer();
   const year = dayMonthYear(date)[0];
   if (year >= 1960 && year < 1970) {
     showModal(data[0]);
@@ -103,6 +121,10 @@ const showIntroductoryMessage = (date, data, modal) => {
     showModal(data[6]);
   }
   modal.style.display = "flex";
+  introModalTimer = setTimeout(() => {
+    modal.style.display = "none";
+    introModalTimer = null;
+  }, 10000);
 };
 
 const showModal = (obj) => {
@@ -113,6 +135,8 @@ const showModal = (obj) => {
 };
 
 const showHowItWorksModal = (modal) => {
+  clearErrorModalTimer();
+  clearIntroModalTimer();
   document.getElementById(MODAL_TITLE_ID).innerHTML = "";
   document.getElementById(MODAL_MESSAGE_ID).innerHTML = "";
 

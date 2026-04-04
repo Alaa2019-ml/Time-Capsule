@@ -72,7 +72,7 @@ const showsNewsBeforeTheYear2004 = (y) => {
       const div = document.querySelector(".news-list");
       renderResultsBefore2004(newsArr, div);
     })
-    .catch((err) => renderError("Ann error occured. ", err.message));
+    .catch((err) => console.warn("Failed to load historical news.", err));
 }; //end func
 
 const checkUrl = (url) => {
@@ -109,7 +109,7 @@ const showNewsInThePast = (d, m, y) => {
         renderResults(url);
       });
     })
-    .catch((err) => renderError("Try again. An error occured. ", err.message));
+    .catch((err) => console.warn("Failed to load historical news.", err));
 };
 
 const getWikipediaLinksFromHtml = (data) => {
@@ -165,7 +165,7 @@ const renderResults = (url) => {
       const container = document.getElementById(NEWS_INTERFACE_ID);
       if (container) container.appendChild(article);
     })
-    .catch(() => renderError("Ann error occured. "));
+    .catch((err) => console.warn("Failed to render news result.", err));
 };
 const renderResultsBefore2004 = (arr, div) => {
   arr.forEach((ele) => {

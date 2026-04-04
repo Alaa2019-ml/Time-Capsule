@@ -1,12 +1,11 @@
 import { NEWS_INTERFACE_ID } from "../constants.js";
 import { createNewsElement } from "../views/newsView.js";
-import {
-  fetchJson,
-  pickRandomItems,
-  getMonthName,
-  renderError,
-} from "../utils/functions.js";
+import { fetchJson, getMonthName } from "../utils/functions.js";
 import { NEWS_API_KEY } from "../utils/keys.js";
+
+const NEWS_BATCH_SIZE = 4;
+let newsResults = [];
+let renderedNewsCount = 0;
 
 export const initNewsPage = (date) => {
   let newsInterface = document.getElementById(NEWS_INTERFACE_ID);
@@ -21,6 +20,10 @@ export const initNewsPage = (date) => {
   newsInterface.innerHTML = "";
   const newsElement = createNewsElement();
   newsInterface.appendChild(newsElement);
+  const loadMoreBtn = newsInterface.querySelector("#news-load-more");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", renderMoreNews);
+  }
 
   if (!date) {
     console.error("Please select a date first.");
@@ -42,35 +45,23 @@ const showsNewsBeforeTheYear2004 = (y) => {
 
   fetchJson(url)
     .then((data) => {
-      console.log(data);
       const allNews = data.response.docs;
-      console.log(allNews);
       const newsArr = [];
       allNews.forEach((ele) => {
-        const articleAbstract = ele.abstract;
-        const documentType = ele.document_type;
-        const articleHeadline = ele.headline.main;
-        const publicationDate = ele.pub_date;
-        const materialType = ele.type_of_material;
-        const articleUrl = ele.web_url;
-        const imageUrl = checkImgaeUrl(ele);
-
-        const thumbnailImageUrl = ele.multimedia.thumbnail.url;
-
         newsArr.push({
-          articleAbstract,
-          documentType,
-          articleHeadline,
-          publicationDate,
-          materialType,
-          articleUrl,
-          imageUrl,
-          thumbnailImageUrl,
+          title: ele?.headline?.main ?? "N/A",
+          summary: ele?.abstract ?? "N/A",
+          publicationDate: ele?.pub_date ?? "",
+          articleUrl: ele?.web_url ?? "",
+          imageUrl: checkImgaeUrl(ele),
+          popularity: Array.isArray(ele?.multimedia) ? ele.multimedia.length : 0,
         });
       });
-      // console.log(newsArr);
+      newsResults = sortNews(newsArr);
+      renderedNewsCount = 0;
       const div = document.querySelector(".news-list");
-      renderResultsBefore2004(newsArr, div);
+      if (div) div.innerHTML = "";
+      renderMoreNews();
     })
     .catch((err) => console.warn("Failed to load historical news.", err));
 }; //end func
@@ -83,11 +74,18 @@ const checkUrl = (url) => {
 const checkImgaeUrl = (ele) => {
   const dict = ele?.multimedia;
 
-  if (!dict) return;
+  if (!dict) return null;
 
-  if (!Array.isArray(dict)) {
-    return checkUrl(dict.default?.url) || checkUrl(dict.thumbnail?.url) || null;
+  if (Array.isArray(dict)) {
+    const preferred =
+      dict.find((item) => item?.subtype === "xlarge") ||
+      dict.find((item) => item?.subtype === "thumbnail") ||
+      dict[0];
+
+    return checkUrl(preferred?.url);
   }
+
+  return checkUrl(dict.default?.url) || checkUrl(dict.thumbnail?.url) || null;
 };
 
 const showNewsInThePast = (d, m, y) => {
@@ -100,13 +98,25 @@ const showNewsInThePast = (d, m, y) => {
   const newsLinksUrl = `https://en.wikipedia.org/w/api.php?action=parse&page=Portal:Current_events/${year} ${month} ${day}&prop=text&format=json&origin=*`;
   fetchJson(newsLinksUrl)
     .then((data) => {
-      // get the HTML part
       const newsLinksArr = getWikipediaLinksFromHtml(data);
-      const randomNews = pickRandomItems(newsLinksArr);
-      let url = ``;
-      randomNews.forEach((ele) => {
-        url = `https://en.wikipedia.org/api/rest_v1/page/summary/${ele}`;
-        renderResults(url);
+      const selectedNews = [...new Set(newsLinksArr)].slice(0, 18);
+
+      return Promise.all(
+        selectedNews.map((item) => {
+          const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${item}`;
+          return fetchJson(url)
+            .then((page) => mapWikipediaResult(page))
+            .catch((err) => {
+              console.warn("Failed to render news result.", err);
+              return null;
+            });
+        })
+      ).then((items) => {
+        newsResults = sortNews(items.filter(Boolean));
+        renderedNewsCount = 0;
+        const div = document.querySelector(".news-list");
+        if (div) div.innerHTML = "";
+        renderMoreNews();
       });
     })
     .catch((err) => console.warn("Failed to load historical news.", err));
@@ -132,66 +142,71 @@ const getWikipediaLinksFromHtml = (data) => {
 
   return arr;
 };
-const renderResults = (url) => {
-  fetchJson(url)
-    .then((data) => {
-      const title = data?.title ?? "N/A";
-      const summary = data?.extract ?? "N/A";
-      const image = data?.originalimage?.source || "";
-      const pageUrl =
-        data?.content_urls?.desktop?.page ||
-        data?.content_urls?.mobile?.page ||
-        "";
+const renderMoreNews = () => {
+  const div = document.querySelector(".news-list");
+  const container = document.getElementById(NEWS_INTERFACE_ID);
+  if (!div || !container) return;
 
-      const article = document.createElement("article");
-      article.className = "news news--large";
+  const nextNews = newsResults.slice(
+    renderedNewsCount,
+    renderedNewsCount + NEWS_BATCH_SIZE
+  );
 
-      article.innerHTML = `
-        ${image ? `<img src="${image}" alt="">` : ""}
-        <div class="news__body">
-          <h4 class="news__title">${title}</h4>
-          <p class="news__summary">${summary}</p>
-          ${
-            pageUrl
-              ? `<div><a href="${pageUrl}" target="_blank" rel="noopener">Read more…</a></div>`
-              : ""
-          }
-        </div>
-      `;
-
-      // for browsers that don’t support :has()
-      if (!image) article.classList.add("no-image");
-
-      const container = document.getElementById(NEWS_INTERFACE_ID);
-      if (container) container.appendChild(article);
-    })
-    .catch((err) => console.warn("Failed to render news result.", err));
-};
-const renderResultsBefore2004 = (arr, div) => {
-  arr.forEach((ele) => {
-    const publishedIn = ele.publicationDate?.slice(0, 4) ?? "Unknown";
-    const article = document.createElement("article");
-    article.className = "news news--large"; // for the larger layout
-
-    // build image markup only if available
-    const imageHTML = ele.imageUrl
-      ? `<img src="${ele.imageUrl}" alt="News image">`
-      : "";
-
-    article.innerHTML = `
-      ${imageHTML}
-      <div class="news__body">
-        <h4 class="news__title">${ele.articleHeadline}</h4>
-        <p class="news__summary">${publishedIn}</p>
-        <div><a href="${ele.articleUrl}" target="_blank" rel="noopener">Read more...</a></div>
-        <div class="news__date">${ele.publicationDate}</div>
-      </div>
-    `;
-
-    if (!ele.imageUrl) {
-      article.classList.add("no-image");
-    }
-
-    div.appendChild(article);
+  nextNews.forEach((item) => {
+    div.appendChild(createNewsArticle(item));
   });
+
+  renderedNewsCount += nextNews.length;
+  updateNewsLoadMoreButton(container);
 };
+
+const updateNewsLoadMoreButton = (container) => {
+  const loadMoreBtn = container.querySelector("#news-load-more");
+  if (!loadMoreBtn) return;
+  loadMoreBtn.hidden = renderedNewsCount >= newsResults.length;
+};
+
+const createNewsArticle = (item) => {
+  const article = document.createElement("article");
+  article.className = "news news--large";
+
+  const imageHTML = item.imageUrl ? `<img src="${item.imageUrl}" alt="">` : "";
+  const summary = item.summary ?? item.publicationDate?.slice(0, 4) ?? "Unknown";
+  const metaDate = item.publicationDate
+    ? `<div class="news__date">${item.publicationDate}</div>`
+    : "";
+  const pageUrl = item.pageUrl || item.articleUrl;
+
+  article.innerHTML = `
+    ${imageHTML}
+    <div class="news__body">
+      <h4 class="news__title">${item.title}</h4>
+      <p class="news__summary">${summary}</p>
+      ${
+        pageUrl
+          ? `<div><a href="${pageUrl}" target="_blank" rel="noopener">Read more...</a></div>`
+          : ""
+      }
+      ${metaDate}
+    </div>
+  `;
+
+  if (!item.imageUrl) article.classList.add("no-image");
+  return article;
+};
+
+const mapWikipediaResult = (data) => ({
+  title: data?.title ?? "N/A",
+  summary: data?.extract ?? "N/A",
+  imageUrl: data?.originalimage?.source || "",
+  pageUrl:
+    data?.content_urls?.desktop?.page || data?.content_urls?.mobile?.page || "",
+  popularity: data?.thumbnail?.width ?? 0,
+});
+
+const sortNews = (items) =>
+  [...items].sort((a, b) => {
+    const imageDelta = Number(Boolean(b.imageUrl)) - Number(Boolean(a.imageUrl));
+    if (imageDelta !== 0) return imageDelta;
+    return (b.popularity ?? 0) - (a.popularity ?? 0);
+  });

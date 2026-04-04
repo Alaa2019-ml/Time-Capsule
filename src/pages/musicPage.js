@@ -1,7 +1,11 @@
 // pages/musicPage.js
 import { MUSIC_INTERFACE_ID } from "../constants.js";
 import { createMusicElement } from "../views/musicView.js";
-import { fetchJson, pickRandomItems, renderError } from "../utils/functions.js";
+import { fetchJson, renderError } from "../utils/functions.js";
+
+const MUSIC_BATCH_SIZE = 6;
+let musicResults = [];
+let renderedMusicCount = 0;
 
 export const initMusicPage = (date) => {
   let musicInterface = document.getElementById(MUSIC_INTERFACE_ID);
@@ -16,6 +20,11 @@ export const initMusicPage = (date) => {
   musicInterface.innerHTML = "";
   const musicElement = createMusicElement();
   musicInterface.appendChild(musicElement);
+
+  const loadMoreBtn = musicInterface.querySelector("#music-load-more");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", renderMoreSongs);
+  }
 
   showMusicInThePast(date);
 };
@@ -51,22 +60,29 @@ const showMusicInThePast = (dateStr) => {
         return;
       }
 
-      const randomSongs = pickRandomItems(allReleasesIds, 6);
-      if (statusEl) statusEl.textContent = "";
-      if (!listEl) return;
+      const selectedSongIds = [...allReleasesIds].slice(0, 18);
 
-      randomSongs.forEach((songId) => {
-        const songUrl = `https://musicbrainz.org/ws/2/release/${songId}?inc=recordings+artist-credits+url-rels&fmt=json`;
-        const coverUrl = `https://coverartarchive.org/release/${songId}`;
+      Promise.all(
+        selectedSongIds.map((songId) => {
+          const songUrl = `https://musicbrainz.org/ws/2/release/${songId}?inc=recordings+artist-credits+url-rels&fmt=json`;
+          const coverUrl = `https://coverartarchive.org/release/${songId}`;
 
-        Promise.all([getEachSongDetails(songUrl), getCoverPage(coverUrl)])
-          .then(([details, imageUrl]) => {
-            appendCoverImage(imageUrl, listEl, details);
-          })
-          .catch((err) => {
-            console.error(err);
-            appendCoverImage(null, listEl, null);
-          });
+          return Promise.all([getEachSongDetails(songUrl), getCoverPage(coverUrl)])
+            .then(([details, imageUrl]) => ({
+              imageUrl,
+              details,
+            }))
+            .catch((err) => {
+              console.error(err);
+              return { imageUrl: null, details: null };
+            });
+        })
+      ).then((songs) => {
+        musicResults = sortSongs(songs);
+        renderedMusicCount = 0;
+        if (listEl) listEl.innerHTML = "";
+        if (statusEl) statusEl.textContent = "";
+        renderMoreSongs();
       });
     })
     .catch((err) => {
@@ -77,6 +93,31 @@ const showMusicInThePast = (dateStr) => {
       if (statusEl)
         statusEl.textContent = "Something went wrong. Please try again.";
     });
+};
+
+const renderMoreSongs = () => {
+  const listEl = document.getElementById("music-list");
+  const section = document.getElementById(MUSIC_INTERFACE_ID);
+
+  if (!listEl || !section) return;
+
+  const nextSongs = musicResults.slice(
+    renderedMusicCount,
+    renderedMusicCount + MUSIC_BATCH_SIZE
+  );
+
+  nextSongs.forEach(({ imageUrl, details }) => {
+    appendCoverImage(imageUrl, listEl, details);
+  });
+
+  renderedMusicCount += nextSongs.length;
+  updateMusicLoadMoreButton(section);
+};
+
+const updateMusicLoadMoreButton = (section) => {
+  const loadMoreBtn = section.querySelector("#music-load-more");
+  if (!loadMoreBtn) return;
+  loadMoreBtn.hidden = renderedMusicCount >= musicResults.length;
 };
 
 const saveAllSongsDetails = (data) => {
@@ -193,3 +234,8 @@ const appendCoverImage = (imageUrl, ul, details) => {
 
   ul.appendChild(li);
 };
+
+const sortSongs = (songs) =>
+  [...songs]
+    .filter((song) => song.details?.songTitle || song.details?.artistName)
+    .sort((a, b) => Number(Boolean(b.imageUrl)) - Number(Boolean(a.imageUrl)));

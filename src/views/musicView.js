@@ -11,6 +11,9 @@ export const createMusicElement = () => {
       <div class="music__content">
         <ul id="music-list" class="covers-grid" aria-label="Album covers"></ul>
       </div>
+      <div class="section__actions">
+        <button id="music-load-more" class="load-more-button" type="button">Load more songs</button>
+      </div>
     </section>
   `);
 };

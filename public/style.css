@@ -77,6 +77,11 @@ header .wrap {
   gap: 10px;
   margin-bottom: 14px;
 }
+.section__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
 .section__title {
   font-size: 22px;
   font-weight: 900;
@@ -130,6 +135,31 @@ header .wrap {
   border-color: #f3c9c9;
   color: var(--accent);
   text-decoration: none;
+}
+.load-more-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #7c72ff, #4fd1ff);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(101, 96, 229, 0.22);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
+}
+.load-more-button:hover,
+.load-more-button:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(101, 96, 229, 0.28);
+  filter: saturate(1.05);
+  outline: none;
+}
+.load-more-button[hidden] {
+  display: none;
 }
 
 /* Shared shells */

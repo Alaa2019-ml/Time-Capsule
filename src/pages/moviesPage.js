@@ -1,7 +1,12 @@
 import { MOVIES_INTERFACE_ID } from "../constants.js";
 import { createMoviesElement } from "../views/moviesView.js";
-import { fetchJson, getTopFive, renderError } from "../utils/functions.js";
+import { fetchJson, renderError } from "../utils/functions.js";
 import { MOVIES_API_KEY } from "../utils/keys.js";
+
+const MOVIES_BATCH_SIZE = 6;
+let moviesSwiperInstance = null;
+let movieResults = [];
+let renderedMoviesCount = 0;
 
 export const initMoviesPage = (date) => {
   let moviesInterface = document.getElementById(MOVIES_INTERFACE_ID);
@@ -30,36 +35,43 @@ const showMoviesInThePast = (dateStr) => {
   const [y] = dateStr.trim().split("-");
   const year = Number(y);
 
-  const moviesUrl =
-    `https://api.themoviedb.org/3/discover/movie` +
-    `?primary_release_year=${year}` +
-    `&sort_by=vote_average.desc` +
-    `&vote_count.gte=1000` +
-    `&include_adult=true` +
-    `&api_key=${MOVIES_API_KEY}`;
+  Promise.all([1, 2, 3].map((page) => fetchJson(buildMoviesUrl(year, page))))
+    .then((pages) => {
+      const movies = pages.flatMap(getAllMovies);
+      const sortedMovies = sortMovies(movies);
 
-  fetchJson(moviesUrl)
-    .then((data) => {
-      const movies = getAllMovies(data);
-
-      //  getTopFive expects a key string, use "popularity"
-      const popularMovies = Array.isArray(movies)
-        ? getTopFive(movies, "popularity")
-        : [];
-
-      if (!Array.isArray(popularMovies) || popularMovies.length === 0) {
+      if (!Array.isArray(sortedMovies) || sortedMovies.length === 0) {
         console.warn("No movies found for that year.");
         return;
       }
 
-      renderResults(popularMovies);
+      movieResults = sortedMovies;
+      renderedMoviesCount = 0;
+      const wrapper = document.querySelector("#movies-swiper .swiper-wrapper");
+      if (wrapper) wrapper.innerHTML = "";
+
+      if (moviesSwiperInstance) {
+        moviesSwiperInstance.destroy(true, true);
+        moviesSwiperInstance = null;
+      }
+
+      renderMoreMovies();
     })
     .catch((err) => {
       console.warn("Something went wrong while fetching movies.", err);
     });
 };
 
-const renderResults = (arr) => {
+const buildMoviesUrl = (year, page) =>
+  `https://api.themoviedb.org/3/discover/movie` +
+  `?primary_release_year=${year}` +
+  `&sort_by=popularity.desc` +
+  `&vote_count.gte=200` +
+  `&include_adult=true` +
+  `&page=${page}` +
+  `&api_key=${MOVIES_API_KEY}`;
+
+const renderMoreMovies = () => {
   const container = document.getElementById(MOVIES_INTERFACE_ID);
   if (!container) {
     renderError("Movies container not found.");
@@ -72,10 +84,12 @@ const renderResults = (arr) => {
     return;
   }
 
-  // clear existing slides
-  wrapper.innerHTML = "";
+  const nextMovies = movieResults.slice(
+    renderedMoviesCount,
+    renderedMoviesCount + MOVIES_BATCH_SIZE
+  );
 
-  arr.forEach((movie) => {
+  nextMovies.forEach((movie) => {
     const slide = document.createElement("article");
     slide.className = "swiper-slide card";
 
@@ -102,18 +116,43 @@ const renderResults = (arr) => {
     wrapper.appendChild(slide);
   });
 
-  new Swiper("#movies-swiper", {
-    slidesPerView: "auto",
-    spaceBetween: 16,
-    freeMode: { enabled: true },
-    mousewheel: { forceToAxis: true },
-    keyboard: true,
-    navigation: {
-      prevEl: "#movies-swiper .swiper-button-prev",
-      nextEl: "#movies-swiper .swiper-button-next",
-    },
-  });
+  renderedMoviesCount += nextMovies.length;
+
+  if (!moviesSwiperInstance) {
+    moviesSwiperInstance = new Swiper("#movies-swiper", {
+      slidesPerView: "auto",
+      spaceBetween: 16,
+      freeMode: { enabled: true },
+      mousewheel: { forceToAxis: true },
+      keyboard: true,
+      navigation: {
+        prevEl: "#movies-swiper .swiper-button-prev",
+        nextEl: "#movies-swiper .swiper-button-next",
+      },
+    });
+
+    const nextBtn = container.querySelector("#movies-swiper .swiper-button-next");
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        if (renderedMoviesCount < movieResults.length) {
+          renderMoreMovies();
+        }
+      });
+    }
+  } else {
+    moviesSwiperInstance.update();
+  }
 };
+
+const sortMovies = (movies) =>
+  [...movies]
+    .filter((movie) => movie.movieTitle)
+    .sort((a, b) => {
+      const imageDelta =
+        Number(Boolean(b.posterPath)) - Number(Boolean(a.posterPath));
+      if (imageDelta !== 0) return imageDelta;
+      return (b.popularity ?? 0) - (a.popularity ?? 0);
+    });
 
 const getAllMovies = (data) => {
   const movies = [];

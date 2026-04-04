@@ -6,6 +6,9 @@ export const createNewsElement = () => {
     String.raw`
        <div class=${NEWS_List_DIV_CLASS}>
        </div>
+       <div class="section__actions">
+         <button id="news-load-more" class="load-more-button" type="button">Load more news</button>
+       </div>
         `
   );
 };

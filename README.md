@@ -1,21 +1,106 @@
-🕰️ Time Travel Dashboard
+# ⏳ Time Capsule
 
-Description:
-The Time Travel Dashboard is an interactive web application that allows users to step back in time. When a user selects a date from the past, the system displays:
-	•	🎵 Top music hits from that year
-	•	🎬 Popular movies from that year
-	•	☁️ Weather conditions from that specific day and the same hour as the current time
-	•	🗞️ Recent news headlines from that year
+> **Explore the past like never before.**
 
-This project combines multiple data sources to recreate the atmosphere of a chosen moment in history — letting users experience what life felt like at that time.
+Time Capsule is an interactive web application that allows users to experience what the world felt like on a specific date in the past.
 
-Features:
-	•	Choose any date from the past
-	•	Displays the weather for that exact day and hour
-	•	Fetches music, movies, and news from the same year
-	•	Real data powered by external APIs
+By selecting a date and entering a city, users can uncover historical weather, music, movies, and news — all combined into a visually rich and engaging experience.
+
+---
+
+## 🎥 Demo
+
+👉 Click to watch the full demo  
+
+[Watch Demo](https://www.loom.com/share/58a5e1f146af48d596a65bd6d1daec40)
+
+---
+
+## ✨ Features
+
+- 📅 Select any past date  
+- 📍 Enter a city to personalize results  
+- 🌦 View historical weather data  
+- 🎵 Explore music releases with cover art  
+- 🎬 Discover movies from the selected year  
+- 📰 Read historical news and events  
+- 🔄 Load more results dynamically  
+- 🖼 Image-rich UI for better user experience  
+
+---
+
+## 🖥️ Preview
+
+### 🌍 Main Experience
+![Main Demo](./public/demo-main.gif)
+
+### 🎵 Music & Movies
 
 
-Goal:
-To offer users a unique “time capsule” experience — showing what the world sounded, looked, and felt like on any date they choose.
+### 📰 News & Events
+![News Demo](./public/demo-news.gif)
+
+
+
+---
+
+## 🧠 Concept
+
+> *What was happening in the world on a specific day in the past?*
+
+Time Capsule answers this by combining multiple data sources into one seamless timeline experience.
+
+---
+
+## ⚙️ How It Works
+
+1. User selects a date and enters a city  
+2. City is converted into geographic coordinates  
+3. Historical weather data is retrieved  
+4. Music, movie, and news data are fetched  
+5. Results are displayed in interactive sections  
+
+---
+
+## 🛠 Tech Stack
+
+- HTML  
+- CSS  
+- JavaScript  
+- Swiper.js  
+
+---
+## 🔗 External APIs
+
+- 🌦 **Open-Meteo** — Geocoding + historical weather data  
+- 🎵 **MusicBrainz** — Music releases by year  
+- 🖼 **Cover Art Archive** — Album artwork  
+- 🎬 **TMDB** — Movie data + popularity ranking  
+- 📰 **New York Times API** — Historical news articles  
+- 📚 **Wikipedia API** — Events and summaries by date  
+---
+
+## 🚀 Getting Started
+
+Run locally:
+
+```bash
+# Open directly in browser
+index.html
+```
+
+## 📁 Project Structure
+
+```text
+Time-Capsule/
+├── index.html
+├── public/
+│   └── style.css
+├── src/
+│   ├── pages/
+│   ├── views/
+│   ├── utils/
+│   ├── constants.js
+│   └── data.js
+└── README.md
 

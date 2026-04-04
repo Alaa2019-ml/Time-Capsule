@@ -84,11 +84,40 @@ header .wrap {
   font-weight: 900;
 }
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
+  font-weight: 700;
   border-radius: 999px;
-  padding: 8px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #fff7cc, #ffe28a);
+  border: 1px solid #f3c96b;
+  color: #503300;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(255, 188, 64, 0.22);
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    filter 140ms ease;
+}
+.chip::before {
+  content: "?";
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 900;
+}
+.chip:hover,
+.chip:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(255, 188, 64, 0.28);
+  filter: saturate(1.04);
+  outline: none;
 }
 .chip--accent {
   background: #fff0f0;

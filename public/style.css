@@ -150,9 +150,11 @@ header .wrap {
 }
 .swiper-wrapper {
   gap: var(--gap);
+  align-items: flex-start;
 }
 .swiper-slide {
   width: var(--cardW) !important;
+  height: auto !important;
 }
 
 /* Media */

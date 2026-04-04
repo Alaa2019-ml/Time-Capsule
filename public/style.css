@@ -42,9 +42,21 @@ header .wrap {
   padding: 16px;
 }
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-weight: 900;
   letter-spacing: 0.04em;
   font-size: 26px;
+}
+.brand__logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+}
+.brand__text {
+  line-height: 1;
 }
 
 /* Section header */

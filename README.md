@@ -10,9 +10,8 @@ By selecting a date and entering a city, users can uncover historical weather, m
 
 ## 🎥 Demo
 
-👉 Click to watch the full demo  
+https://github.com/user-attachments/assets/2e0647e3-0507-4585-b200-e87dcbc95df6
 
-[Watch Demo](https://www.loom.com/share/58a5e1f146af48d596a65bd6d1daec40)
 
 ---
 
@@ -26,21 +25,6 @@ By selecting a date and entering a city, users can uncover historical weather, m
 - 📰 Read historical news and events  
 - 🔄 Load more results dynamically  
 - 🖼 Image-rich UI for better user experience  
-
----
-
-## 🖥️ Preview
-
-### 🌍 Main Experience
-![Main Demo](./public/demo-main.gif)
-
-### 🎵 Music & Movies
-
-
-### 📰 News & Events
-![News Demo](./public/demo-news.gif)
-
-
 
 ---
 
